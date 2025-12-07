@@ -1,164 +1,90 @@
 package com.example.inspiredstock;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.bumptech.glide.Glide;
-import com.example.inspiredstock.databinding.ActivityProductsDetailsBinding;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
-
-
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.ProductsModel;
 
 public class ProductsDetailsActivity extends AppCompatActivity {
-    ActivityProductsDetailsBinding binding;
 
-
-    String TimeStamp;
-    ImageView ProductImage;
+    private EditText pName, pCategory, pPrice, pQty;
+    private ImageView pImage;
+    private Button updateBtn, deleteBtn;
+    private ProductsModel product;
+    private int productId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityProductsDetailsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        getSupportActionBar().hide();
-        ProductImage=findViewById(R.id.productImageDetail);
-        TimeStamp = getIntent().getStringExtra("ProductTimeStamp");
+        setContentView(R.layout.activity_products_details); // Pastikan layout XML ini ada
 
+        pName = findViewById(R.id.product_name_details);
+        pCategory = findViewById(R.id.product_category_details);
+        pPrice = findViewById(R.id.product_price_details);
+        pQty = findViewById(R.id.product_quantity_details);
+        pImage = findViewById(R.id.product_image_details);
+        updateBtn = findViewById(R.id.update_product_btn);
+        deleteBtn = findViewById(R.id.delete_product_btn);
 
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPrefAdapter", MODE_PRIVATE);
-        String ProductName = pref.getString("ProductName", null);
-        String ProductQuantity = pref.getString("ProductQuantity", null);
-        String ProductPrice = pref.getString("ProductPrice", null);
-        String ProductPic = pref.getString("img", null);
-        //calculate to price of products
-        Float fff = Float.valueOf(ProductQuantity);
-        Float pppp = Float.valueOf(ProductPrice);
-        Float TTotalPrice = fff * pppp;
-        String TTTotalPrice = String.valueOf(TTotalPrice);
-        binding.productNameDetail.setText(ProductName);
-        binding.productPriceDetail.setText(ProductPrice);
-        binding.productQuantityDetail.setText(ProductQuantity);
-        binding.productTotalPriceDetail.setText(TTTotalPrice);
-        Glide.with(getApplicationContext()).load(ProductPic).into(ProductImage);
+        // Ambil Data dari Intent (dikirim dari Adapter saat klik list)
+        if(getIntent().hasExtra("product_id")) {
+            productId = getIntent().getIntExtra("product_id", 0);
+            loadProductData(productId);
+        }
 
-
-        binding.productTotalPriceDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String sss = binding.productQuantityDetail.getText().toString();
-                Float fff = Float.valueOf(sss);
-                String ppp = binding.productPriceDetail.getText().toString();
-                Float pppp = Float.valueOf(ppp);
-                Float TTotalPrice = fff * pppp;
-                String TTTotalPrice = String.valueOf(TTotalPrice);
-                binding.productTotalPriceDetail.setText(TTTotalPrice);
-
-            }
-        });
-
-        binding.iconBackProductDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        binding.iconSaveProductDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                HashMap<String, Object> map = new HashMap<>();
-                String sss = binding.productQuantityDetail.getText().toString();
-                Float fff = Float.valueOf(sss);
-                String ppp = binding.productPriceDetail.getText().toString();
-                Float pppp = Float.valueOf(ppp);
-                Float TTotalPrice = fff * pppp;
-                String TTTotalPrice = String.valueOf(TTotalPrice);
-                map.put("ProductName", binding.productNameDetail.getText().toString());
-                map.put("ProductPrice", binding.productPriceDetail.getText().toString());
-                map.put("ProductQuantity", binding.productQuantityDetail.getText().toString());
-                map.put("ProductTotalPrice", TTTotalPrice);
-                SharedPreferences pref1 = getApplicationContext().getSharedPreferences("MyPrefAdapter", MODE_PRIVATE);
-                String ProductTime = pref1.getString("ProductTimeStamp", null);
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                Query applesQuery = ref.child("Products_List").orderByChild("TimeStamps")
-                        .equalTo(ProductTime);
-                applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot appleSnapshot : dataSnapshot.getChildren()) {
-                            appleSnapshot.getRef().updateChildren(map);
-                        }
-                        Toast.makeText(ProductsDetailsActivity.this, "Updated Successfully", Toast.LENGTH_LONG).show();
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(ProductsDetailsActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.e(TAG, "onCancelled", databaseError.toException());
-                    }
-                });
-
-
-            }
-        });
-
-        binding.receiveProductsCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref1", MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putString("key_quantity", binding.productQuantityDetail.getText().toString());
-                editor.putString("key_name5", binding.productQuantityDetail.getText().toString());
-                editor.putString("PName1", binding.productNameDetail.getText().toString());
-                editor.putString("PPrice1", binding.productPriceDetail.getText().toString());
-                editor.apply();
-                Intent intent = new Intent(ProductsDetailsActivity.this, ReceivedProduct.class);
-                startActivity(intent);
-            }
-        });
-
-        binding.issueProductsCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putString("key_quantity", binding.productQuantityDetail.getText().toString());
-                editor.putString("key_name5", binding.productQuantityDetail.getText().toString());
-                editor.putString("PName1", binding.productNameDetail.getText().toString());
-                editor.putString("PPrice1", binding.productPriceDetail.getText().toString());
-                editor.apply();
-                Intent intent = new Intent(ProductsDetailsActivity.this, IssueProducts.class);
-                startActivity(intent);
-
-
-            }
-        });
-
-
+        updateBtn.setOnClickListener(v -> updateProduct());
+        deleteBtn.setOnClickListener(v -> deleteProduct());
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private void loadProductData(int id) {
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        // Perlu tambah method getProductById di ProductsDao, tapi kita bisa filter manual jika darurat
+        // Idealnya tambahkan: @Query("SELECT * FROM table_products WHERE id = :id") ProductsModel getProductById(int id); di DAO
+        // Di sini saya pakai logika pencarian manual dari list untuk kompatibilitas cepat
+        for(ProductsModel p : db.productsDao().getAllProducts()){
+            if(p.id == id){
+                product = p;
+                break;
+            }
+        }
+
+        if(product != null){
+            pName.setText(product.productName);
+            pCategory.setText(product.productCategory);
+            pPrice.setText(product.productPrice);
+            pQty.setText(product.productQuantity);
+            if(product.imagePath != null && !product.imagePath.isEmpty()) {
+                Glide.with(this).load(Uri.parse(product.imagePath)).into(pImage);
+            }
+        }
     }
 
+    private void updateProduct() {
+        if(product == null) return;
+        product.productName = pName.getText().toString();
+        product.productCategory = pCategory.getText().toString();
+        product.productPrice = pPrice.getText().toString();
+        product.productQuantity = pQty.getText().toString();
 
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        db.productsDao().updateProduct(product);
+        Toast.makeText(this, "Produk Diupdate!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private void deleteProduct() {
+        if(product == null) return;
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        db.productsDao().deleteProduct(product);
+        Toast.makeText(this, "Produk Dihapus!", Toast.LENGTH_SHORT).show();
+        finish();
+    }
 }

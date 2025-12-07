@@ -1,83 +1,18 @@
 package com.example.inspiredstock.Models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+
+@Entity(tableName = "table_customers")
 public class CustomersModelClass {
-    String CustomerName,CustomerEmail,CustomerPhone,CustomerAddress,CustomerBankDetail,CustomerDiscount,CustomerNotes,CustomerTimeStamps;
+    @PrimaryKey(autoGenerate = true)
+    public int id;
 
-    public CustomersModelClass() {
-    }
+    @ColumnInfo(name = "c_name") public String customerName;
+    @ColumnInfo(name = "c_phone") public String customerPhone;
+    @ColumnInfo(name = "c_address") public String customerAddress;
+    @ColumnInfo(name = "c_email") public String customerEmail;
 
-    public CustomersModelClass(String customerName, String customerEmail, String customerPhone, String customerAddress, String customerBankDetail, String customerDiscount, String customerNotes, String customerTimeStamps) {
-        CustomerName = customerName;
-        CustomerEmail = customerEmail;
-        CustomerPhone = customerPhone;
-        CustomerAddress = customerAddress;
-        CustomerBankDetail = customerBankDetail;
-        CustomerDiscount = customerDiscount;
-        CustomerNotes = customerNotes;
-        CustomerTimeStamps = customerTimeStamps;
-    }
-
-    public String getCustomerName() {
-        return CustomerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        CustomerName = customerName;
-    }
-
-    public String getCustomerEmail() {
-        return CustomerEmail;
-    }
-
-    public void setCustomerEmail(String customerEmail) {
-        CustomerEmail = customerEmail;
-    }
-
-    public String getCustomerPhone() {
-        return CustomerPhone;
-    }
-
-    public void setCustomerPhone(String customerPhone) {
-        CustomerPhone = customerPhone;
-    }
-
-    public String getCustomerAddress() {
-        return CustomerAddress;
-    }
-
-    public void setCustomerAddress(String customerAddress) {
-        CustomerAddress = customerAddress;
-    }
-
-    public String getCustomerBankDetail() {
-        return CustomerBankDetail;
-    }
-
-    public void setCustomerBankDetail(String customerBankDetail) {
-        CustomerBankDetail = customerBankDetail;
-    }
-
-    public String getCustomerDiscount() {
-        return CustomerDiscount;
-    }
-
-    public void setCustomerDiscount(String customerDiscount) {
-        CustomerDiscount = customerDiscount;
-    }
-
-    public String getCustomerNotes() {
-        return CustomerNotes;
-    }
-
-    public void setCustomerNotes(String customerNotes) {
-        CustomerNotes = customerNotes;
-    }
-
-    public String getCustomerTimeStamps() {
-        return CustomerTimeStamps;
-    }
-
-    public void setCustomerTimeStamps(String customerTimeStamps) {
-        CustomerTimeStamps = customerTimeStamps;
-    }
+    public CustomersModelClass() {}
 }

@@ -1,6 +1,5 @@
 package com.example.inspiredstock;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
@@ -9,13 +8,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.inspiredstock.Adapters.ProductsAdapter;
+import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.ProductsModel;
 import com.example.inspiredstock.databinding.ActivityMainBinding;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +18,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
-    FirebaseDatabase firebaseDatabase;
-    ProductsAdapter adminOrdersAdapter;
 
-    ArrayList<ProductsModel> list=new ArrayList<>();
+    ArrayList<ProductsModel> list = new ArrayList<>();
     ProgressDialog progressDialog;
     double FindTotalStock = 0.0;
 
@@ -34,16 +27,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(R.layout.activity_main);
         setContentView(binding.getRoot());
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setMessage("Processing...");
-        progressDialog.setCancelable(true);
-        progressDialog.show();
-        FetchTotalAmount();
 
-        //move to next activity
+        // Setup Progress Dialog (Opsional, karena Room sangat cepat, ini mungkin hanya muncul sekejap)
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Memuat Data...");
+        progressDialog.setCancelable(false);
+
+        // --- NAVIGATION BUTTONS ---
         binding.goodsCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, SuppliersActivity.class));
             }
         });
-
         binding.expensesCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,59 +68,73 @@ public class MainActivity extends AppCompatActivity {
         binding.billingCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Billing.class));
+                startActivity(new Intent(MainActivity.this, Billing.class)); // Pastikan Activity Billing sudah ada
             }
         });
     }
-    //Fetch data from firebase database
-    private void FetchTotalAmount() {
+
+    // Gunakan onResume agar data ter-refresh otomatis saat kembali dari halaman lain
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadDashboardData();
+    }
+
+    // Menggantikan FetchTotalAmount dari Firebase
+    private void loadDashboardData() {
+        progressDialog.show();
+
         try {
-            firebaseDatabase.getReference("Products_List").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    list.clear();
-                    if (snapshot.exists()) {
-                        for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                            ProductsModel model = snapshot1.getValue(ProductsModel.class);
-                            //model.setMessageId(snapshot1.getKey());
-                            list.add(model);
+            // 1. Panggil Database Room
+            AppDatabase db = AppDatabase.getDbInstance(this.getApplicationContext());
 
-                        }
-                        FindTotalStock = snapshot.getChildrenCount();
-                        binding.totalStock.setText(Double.toString(FindTotalStock));
-                        progressDialog.dismiss();
-                        adminOrdersAdapter = new ProductsAdapter(MainActivity.this, list);
-                        //recyclerView.setAdapter(adminOrdersAdapter);
-                        adminOrdersAdapter.notifyDataSetChanged();
-                        calculateTotalAmount(list);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Data does not exist", Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();
-                    }
+            // 2. Ambil Semua Data Produk
+            List<ProductsModel> productsList = db.productsDao().getAllProducts();
 
+            // 3. Masukkan ke ArrayList lokal
+            list.clear();
+            list.addAll(productsList);
 
-                }
+            // 4. Hitung Jumlah Item (Total Stock Count)
+            FindTotalStock = list.size();
+            binding.totalStock.setText(String.valueOf((int)FindTotalStock)); // Tampilkan sebagai Integer
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+            // 5. Hitung Total Nilai Uang (Total Balance)
+            calculateTotalAmount(list);
 
-                }
-            });
+            progressDialog.dismiss();
 
         } catch (Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(this, "Error memuat data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-            Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    //calculate total amount
-    private void calculateTotalAmount(List<ProductsModel> cartModelList) {
+    // Menghitung Total Harga (Quantity * Price)
+    private void calculateTotalAmount(List<ProductsModel> productList) {
         double totalAmount = 0.0;
-        for(ProductsModel myCartModel: cartModelList){
-            totalAmount +=Double.valueOf(myCartModel.getProductTotalPrice()) ;
 
+        for (ProductsModel item : productList) {
+            try {
+                // Konversi String ke Double karena di Model kita tipe datanya String
+                // Pastikan data tidak kosong untuk menghindari crash
+                String strPrice = item.productPrice != null ? item.productPrice : "0";
+                String strQty = item.productQuantity != null ? item.productQuantity : "0";
+
+                double price = Double.parseDouble(strPrice);
+                double qty = Double.parseDouble(strQty);
+
+                // Rumus: Total = Total + (Harga * Jumlah)
+                totalAmount += (price * qty);
+
+            } catch (NumberFormatException e) {
+                // Abaikan item yang format angkanya salah
+                e.printStackTrace();
+            }
         }
-        binding.totalBalance.setText("Rs: " + totalAmount);
+
+        // Tampilkan hasil dengan format Rupiah (atau Rs sesuai kode lama Anda)
+        binding.totalBalance.setText("Rs: " + String.format("%.2f", totalAmount));
     }
 }

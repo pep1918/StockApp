@@ -1,120 +1,71 @@
 package com.example.inspiredstock;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.example.inspiredstock.Adapters.ExpensesAdapter;
-import com.example.inspiredstock.Models.ExpensesModel;
-import com.example.inspiredstock.databinding.ActivityExpensesBinding;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Database.ExpensesModel;
 import java.util.ArrayList;
-
-
+import java.util.List;
 
 public class ExpensesActivity extends AppCompatActivity {
-    ActivityExpensesBinding binding;
-    RecyclerView recyclerView;
-    FirebaseDatabase firebaseDatabase;
-    ExpensesAdapter adminOrdersAdapter;
 
-    ArrayList<ExpensesModel> list=new ArrayList<>();
-    ProgressDialog progressDialog;
+    private RecyclerView recyclerView;
+    private ExpensesAdapter adapter;
+    private FloatingActionButton fab;
+    private TextView totalExpenseTxt;
+    private List<ExpensesModel> list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityExpensesBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        recyclerView=findViewById(R.id.recyclerViewExpenses);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(null);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        firebaseDatabase=FirebaseDatabase.getInstance();
-        FetchData();
-        progressDialog =new ProgressDialog(ExpensesActivity.this);
-        progressDialog.setMessage("Processing...");
-        progressDialog.setCancelable(true);
-        progressDialog.show();
-        binding.fabAddExpensesButton.setOnClickListener(new View.OnClickListener() {
+        setContentView(R.layout.activity_expenses);
+
+        recyclerView = findViewById(R.id.recycler_expenses);
+        totalExpenseTxt = findViewById(R.id.total_expenses_text); // Jika ada TextView total
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new ExpensesAdapter(this, list);
+        recyclerView.setAdapter(adapter);
+
+        fab = findViewById(R.id.fab_add_expense);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ExpensesActivity.this,AddExpenses.class));
+            public void onClick(View view) {
+                startActivity(new Intent(ExpensesActivity.this, AddExpenses.class));
             }
         });
-
-
     }
 
-    private void FetchData() {
-        firebaseDatabase.getReference("ExpensesList").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                list.clear();
-                if (snapshot.exists()){
-                    for (DataSnapshot snapshot1: snapshot.getChildren())
-                    {
-                        ExpensesModel model=snapshot1.getValue(ExpensesModel.class);
-                        list.add(model);
-                        progressDialog.dismiss();
-                    }
-                    adminOrdersAdapter=new ExpensesAdapter(ExpensesActivity.this,list);
-                    recyclerView.setAdapter(adminOrdersAdapter);
-                    adminOrdersAdapter.notifyDataSetChanged();
-
-                }
-                else {
-                    Toast.makeText(ExpensesActivity.this, "Data does not exist", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ExpensesActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-
-            }
-        });
-
-    }
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search,menu);
-        MenuItem menuItem=menu.findItem(R.id.action_search);
-        SearchView searchView=(SearchView) menuItem.getActionView();
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.clearFocus();
-        searchView.onActionViewCollapsed();
-        searchView.setQueryHint("Search here...");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
+    protected void onResume() {
+        super.onResume();
+        loadExpenses();
+    }
 
-                return false;
-            }
+    private void loadExpenses() {
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        list = db.expensesDao().getAllExpenses();
+        adapter.setList(list);
+        calculateTotal();
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adminOrdersAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-        return super.onCreateOptionsMenu(menu);
+    private void calculateTotal() {
+        double total = 0;
+        for (ExpensesModel item : list) {
+            try {
+                total += Double.parseDouble(item.expenseAmount);
+            } catch (Exception e) {}
+        }
+        if(totalExpenseTxt != null) {
+            totalExpenseTxt.setText("Total: Rp " + total);
+        }
     }
 }

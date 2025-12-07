@@ -1,159 +1,105 @@
 package com.example.inspiredstock;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.inspiredstock.databinding.ActivityAddNewProductsBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
-
-
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.ProductsModel;
 
 public class AddNewProducts extends AppCompatActivity {
-    ActivityAddNewProductsBinding binding;
-    Uri sFile;
-    ImageView ProductPic;
-    ProgressDialog progressDialog;
 
+    private ImageView inputProductImage;
+    private EditText productName, productCategory, productPrice, productQuantity, productId;
+    private Button saveButton;
+    private static final int GalleryPick = 1;
+    private Uri imageUri;
+    private String imagePathString = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_products);
 
-        Button saveAlertButton = findViewById(R.id.saveProductAdd);
-        EditText ProductName = findViewById(R.id.productNameAdd);
-        EditText ProductPrice = findViewById(R.id.productPriceAdd);
-        EditText ProductQuantity = findViewById(R.id.productQuantityAdd);
-        EditText ProductTotalPrice = findViewById(R.id.productTotalAdd);
-        ProductPic = findViewById(R.id.productPic);
-        ImageView UploadProductPic = findViewById(R.id.uploadProductPic);
-        progressDialog=new ProgressDialog(AddNewProducts.this);
-        progressDialog.setMessage("Uploading data...");
-        progressDialog.setCancelable(false);
+        // Inisialisasi View (Sesuaikan ID dengan XML Anda)
+        inputProductImage = findViewById(R.id.select_product_image);
+        productName = findViewById(R.id.product_name);
+        productCategory = findViewById(R.id.product_category);
+        productPrice = findViewById(R.id.product_price);
+        productQuantity = findViewById(R.id.product_quantity);
+        productId = findViewById(R.id.product_id_input); // Jika ada field ID manual
+        saveButton = findViewById(R.id.add_new_product);
 
-        //upload new products to database with image
-        saveAlertButton.setOnClickListener(new View.OnClickListener() {
+        inputProductImage.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (ProductName.getText().toString().isEmpty()) {
-                    ProductName.setError("Please Enter Product Name");
-                    ProductName.requestFocus();
-                } else if (ProductPrice.getText().toString().isEmpty()) {
-                    ProductPrice.setError("Please Enter Product Price");
-                    ProductPrice.requestFocus();
-                }
-                else if (ProductQuantity.getText().toString().isEmpty()) {
-                    ProductQuantity.setError("Please Enter Product Quantity");
-                    ProductQuantity.requestFocus();
-                }
-                else if (sFile == null) {
-                    Toast.makeText(AddNewProducts.this, "Please Select Image", Toast.LENGTH_LONG).show();
-                }
-                else {
-                    progressDialog.show();
-                    final StorageReference reference = FirebaseStorage.getInstance().getReference("ProductsImages/" +UUID.randomUUID().toString());
-                    reference.putFile(sFile).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(@NonNull Uri uri) {
-                                    String saveCurrentDate, saveCurrentTime;
-                                    Calendar callForDate = Calendar.getInstance();
-                                    @SuppressLint("SimpleDateFormat") SimpleDateFormat currentDate = new SimpleDateFormat("dd/MM/yyyy");
-                                    saveCurrentDate = currentDate.format(callForDate.getTime());
-                                    @SuppressLint("SimpleDateFormat") SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm:ss a");
-                                    saveCurrentTime = currentTime.format(callForDate.getTime());
-                                    String timeStamps = String.valueOf((new Date().getTime()));
-                                    final HashMap<String, Object> addToCartMap = new HashMap<>();
-                                    addToCartMap.put("currentDate", saveCurrentDate);
-                                    addToCartMap.put("currentTime", saveCurrentTime);
-                                    addToCartMap.put("TimeStamps", timeStamps);
-                                    addToCartMap.put("ProductName", ProductName.getText().toString());
-                                    addToCartMap.put("ProductPrice", ProductPrice.getText().toString());
-                                    addToCartMap.put("ProductQuantity", ProductQuantity.getText().toString());
-                                    addToCartMap.put("ProductTotalPrice", ProductTotalPrice.getText().toString());
-                                    addToCartMap.put("ProductImage", uri.toString());
-                                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                                    database.getReference().child("Products_List").push().setValue(addToCartMap);
-                                    Toast.makeText(AddNewProducts.this, "Added Successfully", Toast.LENGTH_LONG).show();
-                                    progressDialog.dismiss();
-                                }
-                            });
-
-                        }
-                    });
-
-                }
+            public void onClick(View view) {
+                openGallery();
             }
         });
 
-
-        //get image from gallery
-        UploadProductPic.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*"); //  */* if you want to browse other types of files from device then use */*
-                startActivityForResult(intent, 33);
-
+            public void onClick(View view) {
+                validateAndSave();
             }
         });
-
-        ProductTotalPrice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ProductPrice.getText().toString().isEmpty() && ProductQuantity.getText().toString().isEmpty()) {
-                    Toast.makeText(AddNewProducts.this, "Please enter price and quantity first", Toast.LENGTH_SHORT).show();
-                } else {
-                    String s = ProductQuantity.getText().toString();
-                    Float f = Float.valueOf(s);
-                    String p1 = ProductPrice.getText().toString();
-                    Float p = Float.valueOf(p1);
-                    Float TotalPrice = f * p;
-                    ProductTotalPrice.setText(String.valueOf(TotalPrice));
-
-                }
-
-            }
-        });
-
-
     }
 
-    //set image to activity
+    private void openGallery() {
+        Intent galleryIntent = new Intent();
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, GalleryPick);
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if ((data != null ? data.getData() : null) != null) {
-            sFile = data.getData();
-            ProductPic.setImageURI(sFile);
+        if (requestCode == GalleryPick && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData();
+            // Ambil izin permanen untuk membaca URI ini (Penting untuk Android 11+)
+            try {
+                getContentResolver().takePersistableUriPermission(imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            imagePathString = imageUri.toString();
+            inputProductImage.setImageURI(imageUri);
         }
-        else {
-            Toast.makeText(AddNewProducts.this, "Choose image to update profile", Toast.LENGTH_LONG).show();
+    }
+
+    private void validateAndSave() {
+        String pName = productName.getText().toString();
+        String pCategory = productCategory.getText().toString();
+        String pPrice = productPrice.getText().toString();
+        String pQty = productQuantity.getText().toString();
+        String pId = productId.getText().toString();
+
+        if (TextUtils.isEmpty(pName)) {
+            Toast.makeText(this, "Nama Produk Wajib Diisi", Toast.LENGTH_SHORT).show();
+        } else {
+            // SIMPAN KE ROOM DATABASE
+            AppDatabase db = AppDatabase.getDbInstance(this.getApplicationContext());
+
+            ProductsModel product = new ProductsModel();
+            product.productId = pId;
+            product.productName = pName;
+            product.productCategory = pCategory;
+            product.productPrice = pPrice;
+            product.productQuantity = pQty;
+            product.imagePath = imagePathString;
+
+            db.productsDao().insertProduct(product);
+
+            Toast.makeText(this, "Produk Berhasil Disimpan Offline!", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 }

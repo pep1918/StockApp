@@ -1,148 +1,61 @@
 package com.example.inspiredstock;
 
-import static android.content.ContentValues.TAG;
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.inspiredstock.databinding.ActivityAddExpensesBinding;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Database.ExpensesModel;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-
+import java.util.Locale;
 
 public class AddExpenses extends AppCompatActivity {
-    ActivityAddExpensesBinding binding;
-    String viewType;
+
+    private EditText inputCategory, inputAmount, inputNote;
+    private Button saveBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAddExpensesBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        getSupportActionBar().hide();
-        viewType = getIntent().getStringExtra("ExName");
+        setContentView(R.layout.activity_add_expenses);
 
-        binding.expensesNameAdd.setText(getIntent().getStringExtra("ExName"));
-        binding.expensesDateAdd.setText(getIntent().getStringExtra("ExDate"));
-        binding.expensesDescriptionAdd.setText(getIntent().getStringExtra("ExDescription"));
-        binding.ExpensesPriceAdd.setText(getIntent().getStringExtra("ExPrice"));
-        binding.expensesType.setText(viewType);
+        inputCategory = findViewById(R.id.expense_category_input);
+        inputAmount = findViewById(R.id.expense_amount_input);
+        inputNote = findViewById(R.id.expense_note_input);
+        saveBtn = findViewById(R.id.save_expense_btn);
 
-
-
-        //check if we have to add new data or update existing data
-
-        if (binding.expensesType.getText().toString().equals(viewType)) {
-            binding.expensesNameAdd.setText(getIntent().getStringExtra("ExName"));
-            binding.expensesDateAdd.setText(getIntent().getStringExtra("ExDate"));
-            binding.expensesDescriptionAdd.setText(getIntent().getStringExtra("ExDescription"));
-            binding.ExpensesPriceAdd.setText(getIntent().getStringExtra("ExPrice"));
-            binding.expensesType.setText(viewType);
-        } else {
-            String saveCurrentDate;
-            Calendar callForDate = Calendar.getInstance();
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat currentDate = new SimpleDateFormat("dd/MM/yyyy");
-            saveCurrentDate = currentDate.format(callForDate.getTime());
-            binding.expensesDateAdd.setText(saveCurrentDate);
-        }
-
-
-
-        binding.iconSaveExpensesRick.setOnClickListener(new View.OnClickListener() {
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (binding.expensesType.getText().toString().equals(viewType)) {
-                    UpdateExpensesData();
-                } else {
-                    AddNewExpensesData();
-                }
-
-            }
-        });
-        binding.iconBackAddExpenses.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
+            public void onClick(View view) {
+                saveExpense();
             }
         });
     }
 
-    //update details of expenses
-    private void UpdateExpensesData() {
-        if (binding.ExpensesPriceAdd.getText().toString().isEmpty() || binding.expensesNameAdd.getText().toString().isEmpty()
-                || binding.expensesDateAdd.getText().toString().isEmpty()) {
-            binding.ExpensesPriceAdd.setError("Please enter expenses");
-            binding.ExpensesPriceAdd.requestFocus();
-            binding.expensesNameAdd.setError("Please enter expenses name");
-            binding.expensesNameAdd.requestFocus();
-            binding.expensesDateAdd.setError("Please enter date");
-            binding.expensesDateAdd.requestFocus();
-        } else {
-            String ProductTime = getIntent().getStringExtra("timeStamp");
-            HashMap<String, Object> hashMapUpdate = new HashMap<>();
-            hashMapUpdate.put("Expenses", binding.ExpensesPriceAdd.getText().toString());
-            hashMapUpdate.put("ExpensesName", binding.expensesNameAdd.getText().toString());
-            hashMapUpdate.put("ExpensesDescription", binding.expensesDescriptionAdd.getText().toString());
-            hashMapUpdate.put("ExpensesDate", binding.expensesDateAdd.getText().toString());
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-            Query applesQuery = ref.child("ExpensesList").orderByChild("ExpensesTimeStamps").equalTo(ProductTime);
+    private void saveExpense() {
+        String category = inputCategory.getText().toString();
+        String amount = inputAmount.getText().toString();
+        String note = inputNote.getText().toString();
 
-            applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    for (DataSnapshot appleSnapshot : dataSnapshot.getChildren()) {
-                        appleSnapshot.getRef().updateChildren(hashMapUpdate);
-                    }
-                    Toast.makeText(AddExpenses.this, " Updated Successfully", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(AddExpenses.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "onCancelled", databaseError.toException());
-                }
-            });
+        if (TextUtils.isEmpty(category) || TextUtils.isEmpty(amount)) {
+            Toast.makeText(this, "Kategori dan Jumlah wajib diisi", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-    }
+        // Ambil Tanggal Hari Ini Otomatis
+        String currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
 
-    //add new data of expenses in database
-    private void AddNewExpensesData() {
-        if (binding.ExpensesPriceAdd.getText().toString().isEmpty() || binding.expensesNameAdd.getText().toString().isEmpty()
-                || binding.expensesDateAdd.getText().toString().isEmpty()) {
-            binding.ExpensesPriceAdd.setError("Please enter expenses");
-            binding.ExpensesPriceAdd.requestFocus();
-            binding.expensesNameAdd.setError("Please enter expenses name");
-            binding.expensesNameAdd.requestFocus();
-            binding.expensesDateAdd.setError("Please enter date");
-            binding.expensesDateAdd.requestFocus();
-        } else {
-            HashMap<String, Object> hashMap = new HashMap<>();
-            String TimeStamps = String.valueOf((new Date().getTime()));
-            hashMap.put("Expenses", binding.ExpensesPriceAdd.getText().toString());
-            hashMap.put("ExpensesName", binding.expensesNameAdd.getText().toString());
-            hashMap.put("ExpensesDescription", binding.expensesDescriptionAdd.getText().toString());
-            hashMap.put("ExpensesDate", binding.expensesDateAdd.getText().toString());
-            hashMap.put("ExpensesTimeStamps", TimeStamps);
-            FirebaseDatabase.getInstance().getReference().child("ExpensesList").push().setValue(hashMap);
-            Toast.makeText(AddExpenses.this, "Added Successfully", Toast.LENGTH_LONG).show();
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        ExpensesModel expense = new ExpensesModel(category, amount, currentDate, note);
 
-        }
-
+        db.expensesDao().insertExpense(expense);
+        Toast.makeText(this, "Pengeluaran Disimpan!", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

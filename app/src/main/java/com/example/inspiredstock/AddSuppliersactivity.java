@@ -1,66 +1,56 @@
 package com.example.inspiredstock;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.inspiredstock.databinding.ActivityAddSuppliersactivityBinding;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Date;
-import java.util.HashMap;
-
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.SuppliersModelClass;
 
 public class AddSuppliersactivity extends AppCompatActivity {
 
-    ActivityAddSuppliersactivityBinding binding;
+    private EditText sName, sPhone, sEmail, sAddress;
+    private Button saveBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding= ActivityAddSuppliersactivityBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        getSupportActionBar().hide();
-        binding.iconBackAddSuppliers.setOnClickListener(new View.OnClickListener() {
+        setContentView(R.layout.activity_add_suppliersactivity);
+
+        sName = findViewById(R.id.supplier_name_input);
+        sPhone = findViewById(R.id.supplier_phone_input);
+        sEmail = findViewById(R.id.supplier_email_input);
+        sAddress = findViewById(R.id.supplier_address_input);
+        saveBtn = findViewById(R.id.save_supplier_btn);
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AddSuppliersactivity.this,SuppliersActivity.class));
+            public void onClick(View view) {
+                saveSupplier();
             }
         });
+    }
 
-        //store supplier data to database
-        binding.iconSaveSuppliersRick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (binding.supplierNameAdd.getText().toString().isEmpty() ||binding.supplierPhoneAdd.getText().toString().isEmpty()
-                        ||binding.supplierEmailAdd.getText().toString().isEmpty())
-                {
-                    binding.supplierNameAdd.setError("Please enter name");
-                    binding.supplierNameAdd.requestFocus();
-                    binding.supplierPhoneAdd.setError("Please enter phone");
-                    binding.supplierPhoneAdd.requestFocus();
-                    binding.supplierEmailAdd.setError("Please enter email");
-                    binding.supplierEmailAdd.requestFocus();
-                }
-                else {
-                    HashMap<String, Object> hashMap=new HashMap<>();
-                    String timeStampss= String.valueOf((new Date().getTime()));
-                    hashMap.put("SupplierName",binding.supplierNameAdd.getText().toString());
-                    hashMap.put("SupplierEmail",binding.supplierEmailAdd.getText().toString());
-                    hashMap.put("SupplierPhone",binding.supplierPhoneAdd.getText().toString());
-                    hashMap.put("SupplierAddress",binding.supplierAddressAdd.getText().toString());
-                    hashMap.put("SupplierBankDetail",binding.supplierBankDetailsAdd.getText().toString());
-                    hashMap.put("SupplierDiscount",binding.supplierDiscountAdd.getText().toString());
-                    hashMap.put("SupplierNotes",binding.supplierNotestAdd.getText().toString());
-                    hashMap.put("SupplierTimeStamps",timeStampss);
-                    FirebaseDatabase.getInstance().getReference().child("Suppliers_List").push().setValue(hashMap);
-                    Toast.makeText(AddSuppliersactivity.this, "Added Successfully", Toast.LENGTH_LONG).show();
+    private void saveSupplier() {
+        String name = sName.getText().toString();
+        String phone = sPhone.getText().toString();
+        String email = sEmail.getText().toString();
+        String address = sAddress.getText().toString();
 
-                }
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, "Nama Supplier Kosong", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            }
-        });
+        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
+        SuppliersModelClass supplier = new SuppliersModelClass(name, phone, email, address);
+
+        db.suppliersDao().insertSupplier(supplier);
+        Toast.makeText(this, "Supplier Tersimpan!", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

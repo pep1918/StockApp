@@ -1,81 +1,60 @@
 package com.example.inspiredstock;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.inspiredstock.databinding.ActivityAddCustomersBinding;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Date;
-import java.util.HashMap;
-
+import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.CustomersModelClass;
 
 public class AddCustomersActivity extends AppCompatActivity {
-    ActivityAddCustomersBinding binding;
+
+    private EditText inputName, inputPhone, inputAddress, inputEmail;
+    private Button saveBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityAddCustomersBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        getSupportActionBar().hide();
-        binding.iconBackAddCustomer.setOnClickListener(new View.OnClickListener() {
+        setContentView(R.layout.activity_add_customers);
+
+        inputName = findViewById(R.id.customer_name);
+        inputPhone = findViewById(R.id.customer_phone);
+        inputAddress = findViewById(R.id.customer_address);
+        inputEmail = findViewById(R.id.customer_email);
+        saveBtn = findViewById(R.id.add_customer_btn);
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AddCustomersActivity.this,CustomersActivity.class));
+            public void onClick(View view) {
+                saveCustomer();
             }
         });
+    }
 
-        //upload customer data to firebase database
-        binding.iconSaveCustomersRick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (binding.customerNameAdd.getText().toString().isEmpty()
-                        || binding.customerPhoneAdd.getText().toString().isEmpty()
-                        || binding.customerEmailAdd.getText().toString().isEmpty()) {
-//                    binding.customerNameAdd.setError("Please enter name");
-//                    binding.customerNameAdd.requestFocus();
-//                    binding.customerPhoneAdd.setError("Please enter phone");
-//                    binding.customerPhoneAdd.requestFocus();
-//                    binding.customerEmailAdd.setError("Please enter email");
-//                    binding.customerEmailAdd.requestFocus();
-                    Toast.makeText(AddCustomersActivity.this, "Please enter name, phone, and email", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                else {
-                    try {
+    private void saveCustomer() {
+        String name = inputName.getText().toString();
+        String phone = inputPhone.getText().toString();
+        String address = inputAddress.getText().toString();
+        String email = inputEmail.getText().toString();
 
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(phone)) {
+            Toast.makeText(this, "Nama dan Telepon wajib diisi!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        String timeStampss = String.valueOf((new Date().getTime()));
-                        hashMap.put("CustomerName", binding.customerNameAdd.getText().toString());
-                        hashMap.put("CustomerEmail", binding.customerEmailAdd.getText().toString());
-                        hashMap.put("CustomerPhone", binding.customerPhoneAdd.getText().toString());
-                        hashMap.put("CustomerAddress", binding.customerAddressAdd.getText().toString());
-                        hashMap.put("CustomerBankDetail", binding.customerBankDetailsAdd.getText().toString());
-                        hashMap.put("CustomerDiscount", binding.customerDiscountAdd.getText().toString());
-                        hashMap.put("CustomerNotes", binding.customerNotestAdd.getText().toString());
-                        hashMap.put("CustomerTimeStamps", timeStampss);
-                        FirebaseDatabase.getInstance().getReference().child("Customers_List").push().setValue(hashMap);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        Toast.makeText(AddCustomersActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                    // After successful addition of data
-                    Toast.makeText(AddCustomersActivity.this, "Added Successfully", Toast.LENGTH_LONG).show();
-                    binding.customerNameAdd.setText("");
-                    binding.customerEmailAdd.setText("");
-                    binding.customerPhoneAdd.setText("");
-                    // Clear other fields as needed
-                    //Toast.makeText(AddCustomersActivity.this, "Added Successfully", Toast.LENGTH_LONG).show();
-                }
+        AppDatabase db = AppDatabase.getDbInstance(this.getApplicationContext());
+        CustomersModelClass customer = new CustomersModelClass();
+        customer.customerName = name;
+        customer.customerPhone = phone;
+        customer.customerAddress = address;
+        customer.customerEmail = email;
 
-            }
-        });
-
+        db.customersDao().insertCustomer(customer);
+        Toast.makeText(this, "Pelanggan Disimpan!", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

@@ -1,99 +1,199 @@
 package com.example.inspiredstock;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.SearchView;
+import android.text.InputType;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.inspiredstock.Adapters.BillingAdapter;
+import com.example.inspiredstock.Adapters.CartAdapter;
+import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.BillingModel;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.example.inspiredstock.Models.CartItem;
+import com.example.inspiredstock.Models.CustomersModelClass;
+import com.example.inspiredstock.Models.ProductsModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class Billing extends AppCompatActivity {
-    RecyclerView recyclerView;
-    FirebaseDatabase firebaseDatabase;
-    BillingAdapter adminOrdersAdapter;
-    ArrayList<BillingModel> list = new ArrayList<>();
-    ProgressDialog progressDialog;
+
+    private Spinner customerSpinner;
+    private RecyclerView cartRecycler;
+    private TextView grandTotalTxt;
+    private Button addItemBtn, confirmBtn;
+
+    private AppDatabase db;
+    private List<CustomersModelClass> customerList = new ArrayList<>();
+    private List<ProductsModel> allProducts = new ArrayList<>();
+
+    // Keranjang Belanja
+    private List<CartItem> cartList = new ArrayList<>();
+    private CartAdapter cartAdapter;
+    private double grandTotal = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_billing);
-        recyclerView = findViewById(R.id.billRecyclerview);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(null);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        fetchData();
-        progressDialog = new ProgressDialog(Billing.this);
-        progressDialog.setMessage("Processing...");
-        progressDialog.setCancelable(true);
-        progressDialog.show();
+
+        // Init Views
+        customerSpinner = findViewById(R.id.customer_spinner);
+        cartRecycler = findViewById(R.id.billing_cart_recycler);
+        grandTotalTxt = findViewById(R.id.billing_grand_total);
+        addItemBtn = findViewById(R.id.btn_add_item);
+        confirmBtn = findViewById(R.id.confirm_bill_btn);
+
+        // Init Database
+        db = AppDatabase.getDbInstance(getApplicationContext());
+
+        // Setup RecyclerView Cart
+        cartRecycler.setLayoutManager(new LinearLayoutManager(this));
+        cartAdapter = new CartAdapter(this, cartList);
+        cartRecycler.setAdapter(cartAdapter);
+
+        // Load Data Awal
+        loadCustomers();
+        loadProducts();
+
+        // Event Listeners
+        addItemBtn.setOnClickListener(v -> showProductSelectionDialog());
+        confirmBtn.setOnClickListener(v -> processCheckout());
     }
 
-    private void fetchData() {
-        try {
-            firebaseDatabase.getReference("Billing").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    list.clear();
-                    if (snapshot.exists()) {
-                        for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                            BillingModel model = snapshot1.getValue(BillingModel.class);
-                            list.add(model);
-                        }
-                        adminOrdersAdapter = new BillingAdapter(Billing.this, list);
-                        recyclerView.setAdapter(adminOrdersAdapter);
-                        adminOrdersAdapter.notifyDataSetChanged();
-                        Toast.makeText(Billing.this, "Data fetched successfully", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(Billing.this, "No billing data available", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(Billing.this, "Failed to fetch data: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            });
-        } finally {
-//            progressDialog.dismiss();
+    private void loadCustomers() {
+        customerList = db.customersDao().getAllCustomers();
+        List<String> names = new ArrayList<>();
+        if (customerList.isEmpty()) {
+            names.add("Umum (Tanpa Nama)");
+        } else {
+            for (CustomersModelClass c : customerList) names.add(c.customerName);
         }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
+        customerSpinner.setAdapter(adapter);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        MenuItem menuItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) menuItem.getActionView();
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.setQueryHint("Search here...");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+    private void loadProducts() {
+        allProducts = db.productsDao().getAllProducts();
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adminOrdersAdapter.getFilter().filter(newText);
-                return false;
+    // Dialog untuk memilih barang dari list
+    private void showProductSelectionDialog() {
+        if (allProducts.isEmpty()) {
+            Toast.makeText(this, "Stok barang kosong!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] productNames = new String[allProducts.size()];
+        for (int i = 0; i < allProducts.size(); i++) {
+            ProductsModel p = allProducts.get(i);
+            productNames[i] = p.productName + " (Stok: " + p.productQuantity + ")";
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pilih Barang");
+        builder.setItems(productNames, (dialog, which) -> {
+            // User memilih barang ke-'which'
+            showQuantityDialog(allProducts.get(which));
+        });
+        builder.show();
+    }
+
+    // Dialog input jumlah barang
+    private void showQuantityDialog(ProductsModel selectedProduct) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Masukkan Jumlah Beli (" + selectedProduct.productName + ")");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String qtyStr = input.getText().toString();
+            if (!qtyStr.isEmpty()) {
+                int qty = Integer.parseInt(qtyStr);
+                int currentStock = Integer.parseInt(selectedProduct.productQuantity);
+
+                // CEK STOK
+                if (qty > currentStock) {
+                    Toast.makeText(this, "Stok tidak cukup! Sisa: " + currentStock, Toast.LENGTH_LONG).show();
+                } else {
+                    addToCart(selectedProduct, qty);
+                }
             }
         });
-        return super.onCreateOptionsMenu(menu);
+        builder.setNegativeButton("Batal", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void addToCart(ProductsModel product, int qty) {
+        CartItem item = new CartItem(product, qty);
+        cartList.add(item);
+        cartAdapter.notifyDataSetChanged();
+        calculateTotal();
+    }
+
+    private void calculateTotal() {
+        grandTotal = 0;
+        for (CartItem item : cartList) {
+            grandTotal += item.subtotal;
+        }
+        grandTotalTxt.setText("Rp " + String.format("%.0f", grandTotal));
+    }
+
+    private void processCheckout() {
+        if (cartList.isEmpty()) {
+            Toast.makeText(this, "Keranjang masih kosong!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 1. Simpan Transaksi ke Tabel Billing
+        String customerName = customerSpinner.getSelectedItem() != null ? customerSpinner.getSelectedItem().toString() : "Umum";
+        String date = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(new Date());
+
+        // Buat ringkasan item (misal: "Kopi x2, Gula x1")
+        StringBuilder itemsSummary = new StringBuilder();
+        for(CartItem item : cartList){
+            itemsSummary.append(item.product.productName).append(" x").append(item.qty).append(", ");
+        }
+
+        BillingModel bill = new BillingModel();
+        bill.customerName = customerName;
+        bill.date = date;
+        bill.totalAmount = String.valueOf(grandTotal);
+        bill.itemsSummary = itemsSummary.toString();
+
+        db.billingDao().insertBill(bill);
+
+        // 2. KURANGI STOK BARANG (PENTING!)
+        for (CartItem cartItem : cartList) {
+            ProductsModel product = cartItem.product;
+
+            int oldQty = Integer.parseInt(product.productQuantity);
+            int soldQty = cartItem.qty;
+            int newQty = oldQty - soldQty;
+
+            // Update objek product
+            product.productQuantity = String.valueOf(newQty);
+
+            // Update ke Database Room
+            db.productsDao().updateProduct(product);
+        }
+
+        Toast.makeText(this, "Transaksi Berhasil! Stok Terupdate.", Toast.LENGTH_LONG).show();
+        finish(); // Tutup halaman kasir
     }
 }

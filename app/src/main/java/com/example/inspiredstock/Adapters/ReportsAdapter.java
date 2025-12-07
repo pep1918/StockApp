@@ -1,127 +1,68 @@
 package com.example.inspiredstock.Adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.inspiredstock.Models.BillingModel;
 import com.example.inspiredstock.R;
 
-import java.util.ArrayList;
+import java.util.List;
 
+public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.ViewHolder> {
 
+    private Context context;
+    private List<BillingModel> list;
 
-
-public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.AdminOrdersAdapterViewHolder> implements Filterable {
-
-  Context context;
-  ArrayList<BillingModel> OrdersList;
-  ArrayList<BillingModel> newArraylistFill;
-
-    public ReportsAdapter(Context context, ArrayList<BillingModel> ordersList) {
+    public ReportsAdapter(Context context, List<BillingModel> list) {
         this.context = context;
-        newArraylistFill = ordersList;
-        OrdersList = new ArrayList<>(newArraylistFill);
+        this.list = list;
+    }
+
+    public void setList(List<BillingModel> list) {
+        this.list = list;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
-    public AdminOrdersAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.reports_detail_recycler_sample,parent,false);
-        return new AdminOrdersAdapterViewHolder(v);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Gunakan layout sample yang sudah ada atau buat reports_detail_recycler_sample.xml
+        View view = LayoutInflater.from(context).inflate(R.layout.reports_detail_recycler_sample, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdminOrdersAdapterViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.ProductName.setText(OrdersList.get(position).getProductName());
-        holder.Name.setText(OrdersList.get(position).getName());
-        holder.Price.setText(OrdersList.get(position).getProductTotal_Price());
-        holder.Quantity.setText(OrdersList.get(position).getProductQuantity());
-        holder.Status.setText(OrdersList.get(position).getStatus());
-        holder.Remainig.setText(OrdersList.get(position).getRemaining());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        BillingModel item = list.get(position);
 
+        holder.customerName.setText(item.customerName);
+        holder.date.setText(item.date);
+        holder.total.setText("Rp " + item.totalAmount);
 
-
-
-
+        // Menampilkan ringkasan barang yang dibeli (opsional)
+        holder.items.setText(item.itemsSummary);
     }
 
     @Override
     public int getItemCount() {
-        return OrdersList.size();
+        return list.size();
     }
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView customerName, date, total, items;
 
-
-
-    @Override
-    public Filter getFilter() {
-        return newsFilter;
-    }
-
-    private final Filter newsFilter= new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            ArrayList<BillingModel> filteredNewsList=new ArrayList<>();
-            if (constraint==null||constraint.length()==0){
-                 filteredNewsList.addAll(newArraylistFill);
-            }
-            else {
-                String filterPattern=constraint.toString().toLowerCase().trim();
-                for (BillingModel news:newArraylistFill){
-                    // Ensure that the necessary fields are not null before performing comparisons
-                    if (news.getProductName() != null && news.getProductPrice() != null) {
-                        if (news.getProductName().toLowerCase().contains(filterPattern)
-                                || news.getProductPrice().toLowerCase().contains(filterPattern)) {
-                            filteredNewsList.add(news);
-                        }
-                    }
-                }
-            }
-            FilterResults results=new FilterResults();
-            results.values=filteredNewsList;
-            results.count=filteredNewsList.size();
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            OrdersList.clear();
-            OrdersList.addAll((ArrayList)results.values);
-            notifyDataSetChanged();
-
-        }
-    };
-
-
-
-
-    public static class AdminOrdersAdapterViewHolder extends RecyclerView.ViewHolder {
-        TextView Name,ProductName,Price,Quantity,Date,Remainig,Status;
-
-
-
-        public AdminOrdersAdapterViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            ProductName=itemView.findViewById(R.id.reportDetailProductName);
-            Name=itemView.findViewById(R.id.reportDetailName);
-            Price=itemView.findViewById(R.id.reportDetailPrice);
-            Quantity=itemView.findViewById(R.id.reportDetailQuantity);
-            Remainig=itemView.findViewById(R.id.reportDetailRemainingPayment);
-            Status=itemView.findViewById(R.id.reportDetailPaymentStatus);
-
-
-
-
-
+            // Sesuaikan ID dengan file XML reports_detail_recycler_sample.xml
+            customerName = itemView.findViewById(R.id.report_customer_name);
+            date = itemView.findViewById(R.id.report_date);
+            total = itemView.findViewById(R.id.report_total_amount);
+            items = itemView.findViewById(R.id.report_items_summary); // Tambahkan TextView ini di XML jika ingin lihat detail
         }
     }
 }

@@ -1,85 +1,31 @@
 package com.example.inspiredstock.Models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.ColumnInfo;
+
+@Entity(tableName = "table_products")
 public class ProductsModel {
-    String ProductName,ProductPrice,currentDate,currentTime,ProductQuantity,ProductTotalPrice,ProductImage;
-    String TimeStamps;
+    @PrimaryKey(autoGenerate = true)
+    public int id;
 
-    public ProductsModel() {
-    }
+    @ColumnInfo(name = "p_id") public String productId;
+    @ColumnInfo(name = "p_name") public String productName;
+    @ColumnInfo(name = "p_category") public String productCategory;
+    @ColumnInfo(name = "p_qty") public String productQuantity;
+    @ColumnInfo(name = "p_price") public String productPrice;
 
+    // Kita simpan path (alamat file) gambar di HP, bukan URL internet
+    @ColumnInfo(name = "image_path") public String imagePath;
 
-    public ProductsModel(String productName, String productPrice, String currentDate, String currentTime, String productQuantity, String productTotalPrice, String productImage, String timeStamps) {
-        ProductName = productName;
-        ProductPrice = productPrice;
-        this.currentDate = currentDate;
-        this.currentTime = currentTime;
-        ProductQuantity = productQuantity;
-        ProductTotalPrice = productTotalPrice;
-        ProductImage = productImage;
-        TimeStamps = timeStamps;
-    }
+    public ProductsModel() {}
 
-    public String getProductName() {
-        return ProductName;
-    }
-
-    public void setProductName(String productName) {
-        ProductName = productName;
-    }
-
-    public String getProductPrice() {
-        return ProductPrice;
-    }
-
-    public void setProductPrice(String productPrice) {
-        ProductPrice = productPrice;
-    }
-
-    public String getCurrentDate() {
-        return currentDate;
-    }
-
-    public void setCurrentDate(String currentDate) {
-        this.currentDate = currentDate;
-    }
-
-    public String getCurrentTime() {
-        return currentTime;
-    }
-
-    public void setCurrentTime(String currentTime) {
-        this.currentTime = currentTime;
-    }
-
-    public String getProductQuantity() {
-        return ProductQuantity;
-    }
-
-    public void setProductQuantity(String productQuantity) {
-        ProductQuantity = productQuantity;
-    }
-
-    public String getProductTotalPrice() {
-        return ProductTotalPrice;
-    }
-
-    public void setProductTotalPrice(String productTotalPrice) {
-        ProductTotalPrice = productTotalPrice;
-    }
-
-    public String getProductImage() {
-        return ProductImage;
-    }
-
-    public void setProductImage(String productImage) {
-        ProductImage = productImage;
-    }
-
-    public String getTimeStamps() {
-        return TimeStamps;
-    }
-
-    public void setTimeStamps(String timeStamps) {
-        TimeStamps = timeStamps;
+    public ProductsModel(String productId, String productName, String productCategory, String productQuantity, String productPrice, String imagePath) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productCategory = productCategory;
+        this.productQuantity = productQuantity;
+        this.productPrice = productPrice;
+        this.imagePath = imagePath;
     }
 }
