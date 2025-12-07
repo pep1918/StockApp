@@ -5,7 +5,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inspiredstock.Database.AppDatabase;
-import com.example.inspiredstock.Database.ExpensesModel;
+import com.example.inspiredstock.Models.ExpensesModel; // <--- SUDAH DIPERBAIKI
 import com.example.inspiredstock.Models.BillingModel;
 import com.example.inspiredstock.Models.ProductsModel;
 
@@ -20,7 +20,6 @@ public class PerformanceMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_performance_main);
 
-        // Sesuaikan ID dengan activity_performance_main.xml
         txtTotalSales = findViewById(R.id.perf_total_sales);
         txtTotalExpenses = findViewById(R.id.perf_total_expenses);
         txtNetProfit = findViewById(R.id.perf_net_profit);
@@ -50,7 +49,7 @@ public class PerformanceMain extends AppCompatActivity {
             } catch (Exception e) {}
         }
 
-        // 3. Hitung Jumlah Stok Barang di Gudang
+        // 3. Hitung Jumlah Stok Barang
         List<ProductsModel> products = db.productsDao().getAllProducts();
         int totalStockItems = 0;
         for(ProductsModel p : products){
@@ -59,16 +58,15 @@ public class PerformanceMain extends AppCompatActivity {
             } catch (Exception e){}
         }
 
-        // 4. Hitung Profit Bersih
+        // 4. Hitung Profit
         double netProfit = totalSales - totalExpenses;
 
-        // 5. Tampilkan ke Layar
+        // 5. Tampilkan
         txtTotalSales.setText("Rp " + String.format("%.0f", totalSales));
         txtTotalExpenses.setText("Rp " + String.format("%.0f", totalExpenses));
         txtNetProfit.setText("Rp " + String.format("%.0f", netProfit));
-        txtStockCount.setText(String.valueOf(totalStockItems) + " Unit");
+        txtStockCount.setText(totalStockItems + " Unit");
 
-        // Ubah warna profit (Hijau untung, Merah rugi)
         if(netProfit >= 0){
             txtNetProfit.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
         } else {

@@ -11,7 +11,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.example.inspiredstock.Adapters.ExpensesAdapter;
 import com.example.inspiredstock.Database.AppDatabase;
-import com.example.inspiredstock.Database.ExpensesModel;
+import com.example.inspiredstock.Models.ExpensesModel; // <--- SUDAH DIPERBAIKI
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ExpensesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_expenses);
 
         recyclerView = findViewById(R.id.recycler_expenses);
-        totalExpenseTxt = findViewById(R.id.total_expenses_text); // Jika ada TextView total
+        totalExpenseTxt = findViewById(R.id.total_expenses_text);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new ExpensesAdapter(this, list);
@@ -65,7 +66,7 @@ public class ExpensesActivity extends AppCompatActivity {
             } catch (Exception e) {}
         }
         if(totalExpenseTxt != null) {
-            totalExpenseTxt.setText("Total: Rp " + total);
+            totalExpenseTxt.setText("Total: Rp " + String.format("%.0f", total));
         }
     }
 }

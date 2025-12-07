@@ -22,7 +22,12 @@
             android:textSize="20sp"
             android:layout_marginBottom="20dp"/>
 
-        <TextView text="Customer:" android:textStyle="bold"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Customer:"
+            android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/detail_bill_customer"
             android:layout_width="match_parent"
@@ -31,7 +36,12 @@
             android:textSize="16sp"
             android:layout_marginBottom="10dp"/>
 
-        <TextView text="Date:" android:textStyle="bold"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date:"
+            android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/detail_bill_date"
             android:layout_width="match_parent"
@@ -46,7 +56,12 @@
             android:background="#CCCCCC"
             android:layout_marginBottom="10dp"/>
 
-        <TextView text="Items Purchased:" android:textStyle="bold"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Items Purchased:"
+            android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/detail_bill_items"
             android:layout_width="match_parent"

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.inspiredstock.Database.ExpensesModel; // Pastikan package Model benar
+import com.example.inspiredstock.Models.ExpensesModel;
 import com.example.inspiredstock.R;
 import java.util.List;
 

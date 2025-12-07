@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inspiredstock.Database.AppDatabase;
-import com.example.inspiredstock.Database.ExpensesModel;
+import com.example.inspiredstock.Models.ExpensesModel; // <--- SUDAH DIPERBAIKI
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
