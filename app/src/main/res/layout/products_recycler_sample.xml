@@ -1,71 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background"
-    android:orientation="vertical">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="4dp">
 
-    <soup.neumorphism.NeumorphCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_8sdp"
-        android:layout_marginTop="@dimen/_4sdp"
-        android:layout_marginEnd="@dimen/_8sdp"
-        app:neumorph_shadowColorDark="@color/dark_shadow"
-        app:neumorph_shadowColorLight="@color/light_shadow"
-        app:neumorph_shadowElevation="@dimen/_5sdp"
-        app:neumorph_shapeAppearance="@style/NeumorphismCard">
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/product_image_display"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/item" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <soup.neumorphism.NeumorphCardView
-                android:id="@+id/cardPic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:neumorph_shadowElevation="@dimen/_3sdp"
-                app:neumorph_shapeType="pressed">
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/productCirclePic"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:src="@drawable/products_empty_display"/>
-
-            </soup.neumorphism.NeumorphCardView>
+            android:layout_weight="1"
+            android:layout_marginStart="15dp"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/productsNameList"
-                android:layout_width="match_parent"
+                android:id="@+id/product_name_display"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Product Name"
-                android:padding="@dimen/_5sdp"
-                android:textSize="20sp"
-                android:layout_weight="1"
+                android:text="Nama Produk"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_gravity="center"
-                android:textColor="@color/black"/>
+                android:textColor="#000"/>
+
             <TextView
-                android:id="@+id/productsQty"
-                android:layout_width="@dimen/_200sdp"
-                android:layout_height="wrap_content"
-                android:text="Qty:"
-                android:textSize="15sp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:textColor="@color/black"/>
-            <ImageView
-                android:id="@+id/picOptionMenuProducts"
+                android:id="@+id/product_qty_display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:tint="@color/black"
-                android:src="@drawable/ic_menu_vertical_24"
-                android:layout_gravity="center"
-                android:layout_marginRight="10dp"/>
+                android:text="Qty: 0"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
 
+            <TextView
+                android:id="@+id/product_price_display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp 0"
+                android:textSize="16sp"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
         </LinearLayout>
-
-    </soup.neumorphism.NeumorphCardView>
-</LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

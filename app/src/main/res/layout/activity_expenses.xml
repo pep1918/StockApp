@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ExpensesActivity">
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewExpenses"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/total_expenses_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="15dp"
+        android:background="#FFCDD2"
+        android:text="Total Expense: Rp 0"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_expenses"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/total_expenses_text"
+        android:padding="5dp"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddExpensesButton"
+        android:id="@+id/fab_add_expense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:src="@drawable/add_icon"
-        app:backgroundTint="#4860EA"
-        app:tint="@color/white"
-        android:layout_margin="20dp"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:src="@android:drawable/ic_input_add"
+        android:backgroundTint="#F44336"/>
+</RelativeLayout>
