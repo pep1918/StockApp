@@ -1,20 +1,18 @@
 plugins {
     id 'com.android.application'
-    id 'com.google.gms.google-services'
-
-
 }
 
-
-
 android {
+    // Namespace wajib untuk Gradle versi baru (Ganti sesuai package name Anda)
     namespace 'com.example.inspiredstock'
-    compileSdk 34
+
+    // Target Android 15 (API 35)
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.inspiredstock"
-        minSdk 24
-        targetSdk 34
+        minSdk 24 // Android 7.0 (Agar bisa jalan di banyak HP)
+        targetSdk 35 // Android 15
         versionCode 1
         versionName "1.0"
 
@@ -27,10 +25,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // KONFIGURASI JAVA 17
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+
+    // Aktifkan ViewBinding (Karena kode MainActivity Anda menggunakan 'binding.')
     buildFeatures {
         viewBinding true
     }
@@ -38,11 +40,22 @@ android {
 
 dependencies {
 
-    def room_version = "2.6.1"
+    // --- Android Core ---
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
+    // --- ROOM DATABASE (Pengganti Firebase) ---
+    def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
+    // --- Gambar (Glide) ---
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    debugImplementation "com.amitshekhar.android:debug-db:1.0.6"
+    // --- Unit Testing (Bawaan) ---
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

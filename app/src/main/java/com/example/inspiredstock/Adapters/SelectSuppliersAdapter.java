@@ -1,123 +1,52 @@
 package com.example.inspiredstock.Adapters;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.inspiredstock.Models.SuppliersModelClass;
 import com.example.inspiredstock.R;
-import com.example.inspiredstock.ReceivedProduct;
+import java.util.List;
 
-import java.util.ArrayList;
+public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliersAdapter.ViewHolder> {
+    Context context;
+    List<SuppliersModelClass> list;
 
-
-
-public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliersAdapter.SuppliersViewHolder> implements Filterable {
-
-  Context context;
-  ArrayList<SuppliersModelClass> suppliersList;
-  ArrayList<SuppliersModelClass> newArraylistFill;
-
-    public SelectSuppliersAdapter(Context context, ArrayList<SuppliersModelClass> ordersList) {
+    public SelectSuppliersAdapter(Context context, List<SuppliersModelClass> list) {
         this.context = context;
-        newArraylistFill = suppliersList;
-        this.suppliersList = new ArrayList<>(newArraylistFill);
+        this.list = list;
     }
 
-    @NonNull
-    @Override
-    public SuppliersViewHolder  onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.customers_recyclerview_sample,parent,false);
-        return new SuppliersViewHolder (v);
+    @NonNull @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(context).inflate(R.layout.recycler_view_sample, parent, false);
+        return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SuppliersViewHolder  holder, @SuppressLint("RecyclerView") int position) {
-        holder.supplierName.setText(suppliersList.get(position).getSupplierName());
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent selectSupplier =new Intent(v.getContext(), ReceivedProduct.class);
-                selectSupplier.putExtra("SupplierName",suppliersList.get(position).getSupplierName());
-                selectSupplier.putExtra("SupplierEmail",suppliersList.get(position).getSupplierEmail());
-                selectSupplier.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                v.getContext().startActivity(selectSupplier);
-            }
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        SuppliersModelClass item = list.get(position);
+        holder.name.setText(item.supplierName);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.putExtra("selected_supplier_name", item.supplierName);
+            ((Activity)context).setResult(Activity.RESULT_OK, intent);
+            ((Activity)context).finish();
         });
-
-
     }
 
-    @Override
-    public int getItemCount()
-    {
-        return suppliersList.size();
-    }
+    @Override public int getItemCount() { return list.size(); }
 
-
-
-
-    @Override
-    public Filter getFilter() {
-        return newsFilter;
-    }
-
-    private final Filter newsFilter= new Filter() {
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            ArrayList<SuppliersModelClass> filteredSuppliersList =new ArrayList<>();
-            if (constraint==null||constraint.length()==0){
-                filteredSuppliersList.addAll(newArraylistFill);
-
-            }
-            else {
-                String filterPattern=constraint.toString().toLowerCase().trim();
-                for (SuppliersModelClass supplier :newArraylistFill){
-                    if (supplier.getSupplierName().toLowerCase().contains(filterPattern))
-                        filteredSuppliersList.add(supplier);
-
-                }
-            }
-            FilterResults results=new FilterResults();
-            results.values=filteredSuppliersList;
-            results.count=filteredSuppliersList.size();
-            return results;
-        }
-
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            suppliersList.clear();
-            suppliersList.addAll((ArrayList)results.values);
-            notifyDataSetChanged();
-
-        }
-    };
-
-
-
-
-    public static class SuppliersViewHolder  extends RecyclerView.ViewHolder {
-        TextView supplierName;
-        ImageView picOptionMenuSuppliers;
-
-
-        public SuppliersViewHolder (@NonNull View itemView) {
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView name;
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            supplierName =itemView.findViewById(R.id.customersNameList);
-            picOptionMenuSuppliers =itemView.findViewById(R.id.picOptionMenuCustomers);
-
-
+            name = itemView.findViewById(R.id.supplier_name_text);
         }
     }
 }
