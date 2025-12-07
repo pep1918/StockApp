@@ -17,9 +17,11 @@
             android:id="@+id/img_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_person"
+            android:src="@drawable/supplier"
+            android:padding="5dp"
             android:background="@drawable/edit_text_style"
-            android:padding="8dp"
+            android:backgroundTint="#FFF3E0"
+            app:tint="#FF9800"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -38,10 +40,11 @@
                 android:id="@+id/customer_name_display"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Name Here"
+                android:text="Nama Supplier"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="#333"/>
+
             <TextView
                 android:id="@+id/customer_phone_display"
                 android:layout_width="wrap_content"
@@ -57,7 +60,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_delete"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="#F44336"
+            app:tint="#F44336"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

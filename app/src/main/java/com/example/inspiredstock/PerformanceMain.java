@@ -5,7 +5,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.inspiredstock.Database.AppDatabase;
-import com.example.inspiredstock.Models.ExpensesModel; // <--- SUDAH DIPERBAIKI
+import com.example.inspiredstock.Models.ExpensesModel;
 import com.example.inspiredstock.Models.BillingModel;
 import com.example.inspiredstock.Models.ProductsModel;
 
@@ -20,10 +20,11 @@ public class PerformanceMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_performance_main);
 
+        // Inisialisasi View dengan ID yang BENAR
         txtTotalSales = findViewById(R.id.perf_total_sales);
         txtTotalExpenses = findViewById(R.id.perf_total_expenses);
         txtNetProfit = findViewById(R.id.perf_net_profit);
-        txtStockCount = findViewById(R.id.perf_stock_count);
+        txtStockCount = findViewById(R.id.perf_stock_count); // <--- Ini yang tadi error
 
         calculatePerformance();
     }
@@ -61,12 +62,13 @@ public class PerformanceMain extends AppCompatActivity {
         // 4. Hitung Profit
         double netProfit = totalSales - totalExpenses;
 
-        // 5. Tampilkan
+        // 5. Tampilkan ke Layar
         txtTotalSales.setText("Rp " + String.format("%.0f", totalSales));
         txtTotalExpenses.setText("Rp " + String.format("%.0f", totalExpenses));
         txtNetProfit.setText("Rp " + String.format("%.0f", netProfit));
         txtStockCount.setText(totalStockItems + " Unit");
 
+        // Warna Profit
         if(netProfit >= 0){
             txtNetProfit.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
         } else {

@@ -1,14 +1,22 @@
 package com.example.inspiredstock.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.CustomersModelClass;
 import com.example.inspiredstock.R;
+
 import java.util.List;
 
 public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.ViewHolder> {
@@ -29,7 +37,6 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Pastikan layout XML ini ada: customers_recyclerview_sample.xml
         View view = LayoutInflater.from(context).inflate(R.layout.customers_recyclerview_sample, parent, false);
         return new ViewHolder(view);
     }
@@ -39,7 +46,22 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.View
         CustomersModelClass item = list.get(position);
         holder.name.setText(item.customerName);
         holder.phone.setText(item.customerPhone);
-        holder.address.setText(item.customerAddress);
+
+        // LOGIKA HAPUS CUSTOMER
+        holder.deleteBtn.setOnClickListener(v -> {
+            new AlertDialog.Builder(context)
+                    .setTitle("Hapus Pelanggan")
+                    .setMessage("Yakin hapus " + item.customerName + "?")
+                    .setPositiveButton("Hapus", (dialog, which) -> {
+                        AppDatabase.getDbInstance(context).customersDao().deleteCustomer(item);
+                        list.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                        notifyItemRangeChanged(holder.getAdapterPosition(), list.size());
+                        Toast.makeText(context, "Pelanggan Dihapus", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Batal", null)
+                    .show();
+        });
     }
 
     @Override
@@ -48,13 +70,14 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, phone, address;
+        TextView name, phone;
+        ImageButton deleteBtn;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Sesuaikan ID dengan file XML customers_recyclerview_sample.xml
             name = itemView.findViewById(R.id.customer_name_display);
             phone = itemView.findViewById(R.id.customer_phone_display);
-            address = itemView.findViewById(R.id.customer_address_display);
+            deleteBtn = itemView.findViewById(R.id.btn_delete_item); // ID dari XML
         }
     }
 }

@@ -14,16 +14,19 @@ import com.example.inspiredstock.R;
 import java.util.List;
 
 public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliersAdapter.ViewHolder> {
-    Context context;
-    List<SuppliersModelClass> list;
+
+    private Context context;
+    private List<SuppliersModelClass> list;
 
     public SelectSuppliersAdapter(Context context, List<SuppliersModelClass> list) {
         this.context = context;
         this.list = list;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Kita gunakan layout recycler_view_sample.xml
         View v = LayoutInflater.from(context).inflate(R.layout.recycler_view_sample, parent, false);
         return new ViewHolder(v);
     }
@@ -32,6 +35,9 @@ public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliers
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SuppliersModelClass item = list.get(position);
         holder.name.setText(item.supplierName);
+        holder.phone.setText(item.supplierPhone);
+
+        // Klik item untuk memilih supplier
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.putExtra("selected_supplier_name", item.supplierName);
@@ -40,13 +46,25 @@ public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliers
         });
     }
 
-    @Override public int getItemCount() { return list.size(); }
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name;
+        TextView name, phone;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.supplier_name_text);
+
+            name = itemView.findViewById(R.id.customer_name_display);
+            phone = itemView.findViewById(R.id.customer_phone_display);
+
+
+            View deleteBtn = itemView.findViewById(R.id.btn_delete_item);
+            if(deleteBtn != null) {
+                deleteBtn.setVisibility(View.GONE);
+            }
         }
     }
 }
