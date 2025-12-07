@@ -1,50 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/expense_category_display"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/expense_category_display"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Category"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
-            <TextView
-                android:id="@+id/expense_amount_display"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rp 0"
-                android:textStyle="bold"
-                android:textColor="#F44336"/>
-        </LinearLayout>
+            android:text="Kategori"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/expense_date_display"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date"
+            android:text="DD-MM-YYYY"
             android:textSize="12sp"
-            android:layout_marginTop="5dp"/>
+            android:textColor="#888"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/expense_category_display"/>
 
         <TextView
-            android:id="@+id/expense_note_display"
-            android:layout_width="match_parent"
+            android:id="@+id/expense_amount_display"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Note"
-            android:textSize="14sp"
-            android:layout_marginTop="5dp"/>
-    </LinearLayout>
+            android:text="Rp 100.000"
+            android:textStyle="bold"
+            android:textColor="#F44336"
+            android:textSize="16sp"
+            android:layout_marginEnd="12dp"
+            app:layout_constraintEnd_toStartOf="@+id/btn_delete_expense"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageButton
+            android:id="@+id/btn_delete_expense"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="#888"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
