@@ -1,8 +1,10 @@
 package com.example.inspiredstock.Database;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.inspiredstock.Models.CustomersModelClass;
 
@@ -15,4 +17,10 @@ public interface CustomersDao {
 
     @Query("SELECT * FROM customers ORDER BY id DESC")
     List<CustomersModelClass> getAllCustomers();
+
+    @Delete
+    void deleteCustomer(CustomersModelClass customer);
+
+    @Update
+    void updateCustomer(CustomersModelClass customer);
 }

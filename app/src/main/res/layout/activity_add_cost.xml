@@ -3,40 +3,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp"
+    android:background="#F5F5F5">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Cost"
-        android:textSize="22sp"
+        android:text="Catat Pengeluaran"
+        android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="24dp"/>
 
     <EditText
         android:id="@+id/cost_name_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Cost Name (e.g. Raw Material)"/>
+        android:layout_height="55dp"
+        android:hint="Nama Pengeluaran (Cth: Listrik)"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"/>
 
     <EditText
         android:id="@+id/cost_amount_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Amount (Rp)"/>
+        android:layout_height="55dp"
+        android:hint="Nominal (Rp)"
+        android:inputType="numberDecimal"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"/>
 
     <EditText
         android:id="@+id/cost_desc_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Description"/>
+        android:layout_height="80dp"
+        android:hint="Keterangan Tambahan"
+        android:gravity="top|start"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"/>
 
     <Button
         android:id="@+id/save_cost_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Cost"
-        android:backgroundTint="#FF9800"
-        android:layout_marginTop="20dp"/>
+        android:layout_height="60dp"
+        android:text="SIMPAN"
+        android:backgroundTint="#F44336"/>
 </LinearLayout>

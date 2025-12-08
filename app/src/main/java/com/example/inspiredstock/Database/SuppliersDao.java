@@ -1,6 +1,7 @@
-package com.example.inspiredstock.Database; // Package 'D' Besar
+package com.example.inspiredstock.Database;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -14,7 +15,10 @@ public interface SuppliersDao {
     @Insert
     void insertSupplier(SuppliersModelClass supplier);
 
-
     @Query("SELECT * FROM suppliers ORDER BY id DESC")
     List<SuppliersModelClass> getAllSuppliers();
+
+
+    @Delete
+    void deleteSupplier(SuppliersModelClass supplier);
 }

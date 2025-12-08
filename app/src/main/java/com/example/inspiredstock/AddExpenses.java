@@ -19,9 +19,9 @@ public class AddExpenses extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_expenses);
+        setContentView(R.layout.activity_add_expenses); // Pastikan XML ini ada
 
-        etCategory = findViewById(R.id.cost_name_input); // Sesuaikan ID
+        etCategory = findViewById(R.id.cost_name_input); // ID dari activity_add_cost.xml / activity_add_expenses.xml
         etAmount = findViewById(R.id.cost_amount_input);
         etNote = findViewById(R.id.cost_desc_input);
         btnSave = findViewById(R.id.save_cost_btn);
@@ -30,21 +30,28 @@ public class AddExpenses extends AppCompatActivity {
             String category = etCategory.getText().toString();
             String amountStr = etAmount.getText().toString();
             String note = etNote.getText().toString();
-            String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-            if(amountStr.isEmpty()) return;
+            // Ambil tanggal hari ini
+            String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-            // PERBAIKAN: Parsing Double
+            if (amountStr.isEmpty()) {
+                Toast.makeText(this, "Nominal harus diisi!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             double amount = Double.parseDouble(amountStr);
 
             // Gunakan Constructor atau Setter
             ExpensesModel expense = new ExpensesModel();
-            expense.setExpenseName(category);
+            expense.setExpenseName(category.isEmpty() ? "Pengeluaran Umum" : category);
             expense.setAmount(amount);
-            expense.setDate(date);
+            expense.setDate(currentDate);
             expense.setNote(note);
 
-            AppDatabase.getDbInstance(this).expensesDao().insertExpense(expense);
+            // Simpan ke DB
+            AppDatabase.getDbInstance(getApplicationContext()).expensesDao().insertExpense(expense);
+
+            Toast.makeText(this, "Pengeluaran Berhasil Disimpan", Toast.LENGTH_SHORT).show();
             finish();
         });
     }

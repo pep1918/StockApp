@@ -3,38 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp"
+    android:gravity="center">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Barang Keluar / Rusak"
-        android:textSize="22sp"
-        android:layout_marginBottom="20dp"/>
-
-    <TextView
-        android:text="Pilih Produk:"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="Pengurangan Stok (Issue)"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
     <Spinner
         android:id="@+id/issue_product_spinner"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="16dp"/>
 
     <EditText
         android:id="@+id/issue_qty_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:hint="Jumlah Keluar"
         android:inputType="number"
-        android:hint="Jumlah Keluar (Qty)"/>
+        android:layout_marginBottom="24dp"/>
 
     <Button
-        android:id="@+id/btn_issue_stock"
+        android:id="@+id/issue_submit_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Kurangi Stok"
-        android:backgroundTint="#FF5722"
-        android:layout_marginTop="20dp"/>
+        android:text="KURANGI STOK"
+        android:backgroundTint="#F44336"/>
+
 </LinearLayout>

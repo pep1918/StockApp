@@ -3,33 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp"
+    android:gravity="center">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Terima Barang / Restock"
-        android:textSize="22sp"
-        android:layout_marginBottom="20dp"/>
+        android:text="Penerimaan Stok (Receive)"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
-    <TextView text="Pilih Produk:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
     <Spinner
-        android:id="@+id/received_product_spinner"
+        android:id="@+id/receive_product_spinner"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="16dp"/>
 
     <EditText
-        android:id="@+id/received_qty_input"
+        android:id="@+id/receive_qty_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:hint="Jumlah Masuk"
         android:inputType="number"
-        android:hint="Jumlah Masuk (Qty)"/>
+        android:layout_marginBottom="24dp"/>
 
     <Button
-        android:id="@+id/btn_add_stock"
+        android:id="@+id/receive_submit_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tambah Stok"
-        android:layout_marginTop="20dp"/>
+        android:text="TAMBAH STOK"
+        android:backgroundTint="#4CAF50"/>
+
 </LinearLayout>

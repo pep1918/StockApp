@@ -18,17 +18,22 @@ public class CustomersModelClass {
     @ColumnInfo(name = "cust_address")
     private String customerAddress;
 
+    @ColumnInfo(name = "cust_email") // Tambahan kolom Email
+    private String customerEmail;
+
     public CustomersModelClass() {}
 
-    // Getters
+    // --- GETTER ---
     public int getId() { return id; }
     public String getCustomerName() { return customerName; }
     public String getCustomerPhone() { return customerPhone; }
     public String getCustomerAddress() { return customerAddress; }
+    public String getCustomerEmail() { return customerEmail; }
 
-    // Setters
+    // --- SETTER ---
     public void setId(int id) { this.id = id; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
     public void setCustomerPhone(String customerPhone) { this.customerPhone = customerPhone; }
     public void setCustomerAddress(String customerAddress) { this.customerAddress = customerAddress; }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
 }

@@ -1,23 +1,22 @@
 package com.example.inspiredstock.Models;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
 
-@Entity(tableName = "table_costs")
+@Entity(tableName = "costs")
 public class CostModel {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public int id; // Public agar bisa diakses langsung di Adapter jika mau cepat, atau buat getter/setter
 
-    @ColumnInfo(name = "cost_name") public String costName;
-    @ColumnInfo(name = "cost_amount") public String costAmount;
-    @ColumnInfo(name = "cost_desc") public String costDescription;
+    @ColumnInfo(name = "cost_name")
+    public String costName;
+
+    @ColumnInfo(name = "amount")
+    public double amount;
+
+    @ColumnInfo(name = "description")
+    public String description;
 
     public CostModel() {}
-
-    public CostModel(String name, String amount, String desc) {
-        this.costName = name;
-        this.costAmount = amount;
-        this.costDescription = desc;
-    }
 }

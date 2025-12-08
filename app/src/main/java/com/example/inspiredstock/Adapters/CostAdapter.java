@@ -12,6 +12,7 @@ import com.example.inspiredstock.R;
 import java.util.List;
 
 public class CostAdapter extends RecyclerView.Adapter<CostAdapter.ViewHolder> {
+
     private Context context;
     private List<CostModel> list;
 
@@ -20,33 +21,33 @@ public class CostAdapter extends RecyclerView.Adapter<CostAdapter.ViewHolder> {
         this.list = list;
     }
 
-    public void setList(List<CostModel> list) { this.list = list; notifyDataSetChanged(); }
-
-    @NonNull @Override
+    @NonNull
+    @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Bisa pakai layout sample expenses biar hemat file xml
-        View view = LayoutInflater.from(context).inflate(R.layout.expenses_recycler_sample, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.row_product_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CostModel item = list.get(position);
+
+        // Akses langsung (jika public) atau Getter
         holder.name.setText(item.costName);
-        holder.amount.setText("Rp " + item.costAmount);
-        holder.desc.setText(item.costDescription);
+        holder.desc.setText(item.description);
+        holder.amount.setText("Rp " + item.amount);
     }
 
-    @Override public int getItemCount() { return list.size(); }
+    @Override
+    public int getItemCount() { return list.size(); }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, amount, desc;
+        TextView name, desc, amount;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Sesuaikan ID xml
-            name = itemView.findViewById(R.id.expense_category_display);
-            amount = itemView.findViewById(R.id.expense_amount_display);
-            desc = itemView.findViewById(R.id.expense_note_display);
+            name = itemView.findViewById(R.id.tvProductName);
+            desc = itemView.findViewById(R.id.tvProductStock);
+            amount = itemView.findViewById(R.id.tvProductPrice);
         }
     }
 }

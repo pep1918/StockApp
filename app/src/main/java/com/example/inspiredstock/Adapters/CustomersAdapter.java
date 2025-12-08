@@ -1,83 +1,120 @@
 package com.example.inspiredstock.Adapters;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.CustomersModelClass;
 import com.example.inspiredstock.R;
-
 import java.util.List;
 
 public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.ViewHolder> {
 
-    private Context context;
     private List<CustomersModelClass> list;
+    private Context context;
 
-    public CustomersAdapter(Context context, List<CustomersModelClass> list) {
+    public CustomersAdapter(List<CustomersModelClass> list, Context context) {
+        this.list = list;
         this.context = context;
-        this.list = list;
-    }
-
-    public void setList(List<CustomersModelClass> list) {
-        this.list = list;
-        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.customers_recyclerview_sample, parent, false);
+        // Reuse layout product item agar konsisten
+        View view = LayoutInflater.from(context).inflate(R.layout.row_product_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         CustomersModelClass item = list.get(position);
-        holder.name.setText(item.customerName);
-        holder.phone.setText(item.customerPhone);
 
-        // LOGIKA HAPUS CUSTOMER
-        holder.deleteBtn.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
+        holder.name.setText(item.getCustomerName());
+        holder.phone.setText(item.getCustomerPhone());
+        holder.price.setVisibility(View.GONE); // Sembunyikan harga karena ini customer
+
+        // --- FITUR EDIT (KLIK BIASA) ---
+        holder.itemView.setOnClickListener(v -> showEditDialog(item, position));
+
+        // --- FITUR DELETE (KLIK TAHAN) ---
+        holder.itemView.setOnLongClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(context)
                     .setTitle("Hapus Pelanggan")
-                    .setMessage("Yakin hapus " + item.customerName + "?")
-                    .setPositiveButton("Hapus", (dialog, which) -> {
+                    .setMessage("Hapus " + item.getCustomerName() + "?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
                         AppDatabase.getDbInstance(context).customersDao().deleteCustomer(item);
-                        list.remove(holder.getAdapterPosition());
-                        notifyItemRemoved(holder.getAdapterPosition());
-                        notifyItemRangeChanged(holder.getAdapterPosition(), list.size());
-                        Toast.makeText(context, "Pelanggan Dihapus", Toast.LENGTH_SHORT).show();
+                        list.remove(position);
+                        notifyItemRemoved(position);
+                        Toast.makeText(context, "Terhapus", Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton("Batal", null)
+                    .setNegativeButton("Tidak", null)
                     .show();
+            return true;
         });
     }
 
-    @Override
-    public int getItemCount() {
-        return list.size();
+    // Fungsi Dialog Edit
+    private void showEditDialog(CustomersModelClass item, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_customer_input, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        EditText etName = view.findViewById(R.id.etCustName);
+        EditText etPhone = view.findViewById(R.id.etCustPhone);
+        EditText etAddress = view.findViewById(R.id.etCustAddress);
+        Button btnSave = view.findViewById(R.id.btnSave);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        TextView tvTitle = view.findViewById(R.id.tvTitle); // Jika ada ID title di XML dialog
+
+        // Isi data lama
+        etName.setText(item.getCustomerName());
+        etPhone.setText(item.getCustomerPhone());
+        etAddress.setText(item.getCustomerAddress());
+        btnSave.setText("UPDATE"); // Ubah teks tombol
+
+        btnSave.setOnClickListener(v -> {
+            // Update Data di Model
+            item.setCustomerName(etName.getText().toString());
+            item.setCustomerPhone(etPhone.getText().toString());
+            item.setCustomerAddress(etAddress.getText().toString());
+
+            // Update ke Database
+            AppDatabase.getDbInstance(context).customersDao().updateCustomer(item);
+
+            // Update List Tampilan
+            notifyItemChanged(position);
+            dialog.dismiss();
+            Toast.makeText(context, "Data Diupdate", Toast.LENGTH_SHORT).show();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, phone;
-        ImageButton deleteBtn;
+    @Override
+    public int getItemCount() { return list.size(); }
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView name, phone, price;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.customer_name_display);
-            phone = itemView.findViewById(R.id.customer_phone_display);
-            deleteBtn = itemView.findViewById(R.id.btn_delete_item); // ID dari XML
+            name = itemView.findViewById(R.id.tvProductName);
+            phone = itemView.findViewById(R.id.tvProductStock);
+            price = itemView.findViewById(R.id.tvProductPrice);
         }
     }
 }

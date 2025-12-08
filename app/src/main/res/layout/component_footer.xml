@@ -2,25 +2,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#263238"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:background="#F5F5F5"
+    android:padding="16dp"
     android:gravity="center">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="© 2025 Inspired Stock Management"
-        android:textColor="#B0BEC5"
-        android:textSize="12sp"
-        android:textStyle="bold"/>
+    <View
+        android:layout_width="50dp"
+        android:layout_height="2dp"
+        android:background="#E0E0E0"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Version 1.0.0"
-        android:textColor="#546E7A"
-        android:textSize="10sp"
-        android:layout_marginTop="4dp"/>
+        android:text="© 2025 StockApp System"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="#9E9E9E"
+        android:textSize="12sp"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Versi 1.0.0 • Production Build"
+        android:textColor="#BDBDBD"
+        android:textSize="10sp"/>
 </LinearLayout>

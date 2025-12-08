@@ -1,6 +1,7 @@
 package com.example.inspiredstock;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,7 @@ public class IssueProducts extends AppCompatActivity {
 
     Spinner spinnerProducts;
     EditText etQty;
-    Button btnIssue;
+    Button btnSubmit;
     AppDatabase db;
     List<ProductsModel> productList;
 
@@ -26,33 +27,47 @@ public class IssueProducts extends AppCompatActivity {
         setContentView(R.layout.activity_issue_products);
 
         db = AppDatabase.getDbInstance(this);
-        // Pastikan ID sesuai layout Anda
-        // spinnerProducts = findViewById(R.id.issue_product_spinner);
-        // etQty = findViewById(R.id.issue_qty_input);
-        // btnIssue = findViewById(R.id.issue_submit_btn);
 
-        loadProducts();
+        // Pastikan ID ini ada di XML activity_issue_products.xml
+        spinnerProducts = findViewById(R.id.issue_product_spinner);
+        etQty = findViewById(R.id.issue_qty_input);
+        btnSubmit = findViewById(R.id.issue_submit_btn);
+
+        loadProductsToSpinner();
+
+        btnSubmit.setOnClickListener(v -> issueStock());
     }
 
-    private void loadProducts() {
+    private void loadProductsToSpinner() {
         productList = db.productsDao().getAllProducts();
         List<String> names = new ArrayList<>();
         for (ProductsModel p : productList) {
-            names.add(p.getProductName()); // GUNAKAN GETTER
+            names.add(p.getProductName()); // Getter
         }
-        // ArrayAdapter code...
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
+        spinnerProducts.setAdapter(adapter);
     }
 
-    private void issueProduct(int index, int reduceQty) {
-        ProductsModel product = productList.get(index);
-        int currentQty = product.getStock(); // GUNAKAN GETTER (INT)
+    private void issueStock() {
+        int selectedPos = spinnerProducts.getSelectedItemPosition();
+        String qtyStr = etQty.getText().toString();
 
-        if (currentQty >= reduceQty) {
-            product.setStock(currentQty - reduceQty); // GUNAKAN SETTER
-            db.productsDao().updateProduct(product);
-            Toast.makeText(this, "Stok dikurangi", Toast.LENGTH_SHORT).show();
+        if (qtyStr.isEmpty()) {
+            Toast.makeText(this, "Masukkan Jumlah", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int qtyToReduce = Integer.parseInt(qtyStr);
+        ProductsModel selectedProduct = productList.get(selectedPos);
+        int currentStock = selectedProduct.getStock(); // Getter
+
+        if (currentStock >= qtyToReduce) {
+            selectedProduct.setStock(currentStock - qtyToReduce); // Setter
+            db.productsDao().updateProduct(selectedProduct);
+            Toast.makeText(this, "Stok Berhasil Dikurangi", Toast.LENGTH_SHORT).show();
+            finish();
         } else {
-            Toast.makeText(this, "Stok tidak cukup", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Stok Tidak Cukup!", Toast.LENGTH_SHORT).show();
         }
     }
 }

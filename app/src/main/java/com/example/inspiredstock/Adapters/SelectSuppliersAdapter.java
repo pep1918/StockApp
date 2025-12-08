@@ -9,40 +9,47 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.inspiredstock.Models.SuppliersModelClass;
 import com.example.inspiredstock.R;
+
 import java.util.List;
 
 public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliersAdapter.ViewHolder> {
 
-    private Context context;
     private List<SuppliersModelClass> list;
+    private Context context;
 
-    public SelectSuppliersAdapter(Context context, List<SuppliersModelClass> list) {
-        this.context = context;
+    // Constructor
+    public SelectSuppliersAdapter(List<SuppliersModelClass> list, Context context) {
         this.list = list;
+        this.context = context;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Kita gunakan layout recycler_view_sample.xml
-        View v = LayoutInflater.from(context).inflate(R.layout.recycler_view_sample, parent, false);
-        return new ViewHolder(v);
+        // Menggunakan layout row_supplier.xml
+        View view = LayoutInflater.from(context).inflate(R.layout.row_supplier, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SuppliersModelClass item = list.get(position);
-        holder.name.setText(item.supplierName);
-        holder.phone.setText(item.supplierPhone);
 
-        // Klik item untuk memilih supplier
+        // Set Data ke View (Pastikan menggunakan Getter)
+        holder.name.setText(item.getSupplierName());
+        holder.phone.setText(item.getSupplierContact());
+
+        // Logika Klik Item -> Kirim Nama Supplier kembali ke Activity Sebelumnya
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent();
-            intent.putExtra("selected_supplier_name", item.supplierName);
-            ((Activity)context).setResult(Activity.RESULT_OK, intent);
-            ((Activity)context).finish();
+            intent.putExtra("selected_supplier_name", item.getSupplierName());
+
+            // Mengirim hasil kembali (Set Result OK)
+            ((Activity) context).setResult(Activity.RESULT_OK, intent);
+            ((Activity) context).finish(); // Menutup layar pilih supplier
         });
     }
 
@@ -51,20 +58,15 @@ public class SelectSuppliersAdapter extends RecyclerView.Adapter<SelectSuppliers
         return list.size();
     }
 
+    // --- BAGIAN INI YANG SERING LUPA DIBUAT ---
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, phone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            name = itemView.findViewById(R.id.customer_name_display);
-            phone = itemView.findViewById(R.id.customer_phone_display);
-
-
-            View deleteBtn = itemView.findViewById(R.id.btn_delete_item);
-            if(deleteBtn != null) {
-                deleteBtn.setVisibility(View.GONE);
-            }
+            // Menghubungkan ID dari row_supplier.xml
+            name = itemView.findViewById(R.id.tvSuppName);
+            phone = itemView.findViewById(R.id.tvSuppContact);
         }
     }
 }

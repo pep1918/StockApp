@@ -7,31 +7,40 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.inspiredstock.Adapters.CostAdapter;
 import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.CostModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.ArrayList;
+import java.util.List;
 
 public class CostActivity extends AppCompatActivity {
-    RecyclerView rec;
-    FloatingActionButton fab;
+
+    RecyclerView recyclerView;
     CostAdapter adapter;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cost);
 
-        rec = findViewById(R.id.recycler_cost);
+        recyclerView = findViewById(R.id.recycler_view_cost);
         fab = findViewById(R.id.fab_add_cost);
-        rec.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new CostAdapter(this, new ArrayList<>());
-        rec.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        fab.setOnClickListener(v -> startActivity(new Intent(this, AddCost.class)));
+        loadData();
+
+        fab.setOnClickListener(v -> startActivity(new Intent(CostActivity.this, AddCost.class)));
     }
 
-    @Override protected void onResume() {
+    @Override
+    protected void onResume() {
         super.onResume();
-        adapter.setList(AppDatabase.getDbInstance(this).costDao().getAllCosts());
+        loadData();
+    }
+
+    private void loadData() {
+        List<CostModel> list = AppDatabase.getDbInstance(this).costDao().getAllCosts();
+        adapter = new CostAdapter(this, list);
+        recyclerView.setAdapter(adapter);
     }
 }

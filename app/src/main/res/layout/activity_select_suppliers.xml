@@ -7,15 +7,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Supplier"
-        android:padding="15dp"
+        android:text="Pilih Supplier"
+        android:padding="16dp"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:background="#E0E0E0"/>
+        android:background="#EEEEEE"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/select_suppliers_recycler"
+        android:id="@+id/recycler_select_supplier"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="5dp"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>

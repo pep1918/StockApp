@@ -1,6 +1,7 @@
 package com.example.inspiredstock.Database;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -15,4 +16,7 @@ public interface ExpensesDao {
 
     @Query("SELECT * FROM expenses ORDER BY id DESC")
     List<ExpensesModel> getAllExpenses();
+
+    @Delete
+    void deleteExpense(ExpensesModel expense);
 }

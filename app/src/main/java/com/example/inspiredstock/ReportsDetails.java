@@ -5,52 +5,58 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.inspiredstock.Adapters.ReportsAdapter;
 import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.BillingModel;
-
-import java.util.ArrayList;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class ReportsDetails extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    private ReportsAdapter adapter;
-    private TextView totalSalesTxt;
-    private List<BillingModel> list = new ArrayList<>();
+    RecyclerView recyclerView;
+    TextView tvGrandTotalRevenue, tvTotalTransactionCount;
+    AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reports_details);
 
-        recyclerView = findViewById(R.id.recycler_reports); // Pastikan ID ini ada di XML
-        totalSalesTxt = findViewById(R.id.reports_total_sales); // Jika ada textview total di atas
+        db = AppDatabase.getDbInstance(this);
+
+        // Hubungkan ID
+        recyclerView = findViewById(R.id.recycler_reports);
+        tvGrandTotalRevenue = findViewById(R.id.tvGrandTotalRevenue);
+        tvTotalTransactionCount = findViewById(R.id.tvTotalTransactionCount);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new ReportsAdapter(this, list);
-        recyclerView.setAdapter(adapter);
 
         loadReports();
     }
 
     private void loadReports() {
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-        list = db.billingDao().getAllBills();
-        adapter.setList(list);
+        // Ambil semua data transaksi (sorted by ID DESC)
+        List<BillingModel> list = db.billingDao().getAllBills();
 
-        // Hitung Total Penjualan Keseluruhan
-        double grandTotal = 0;
-        for(BillingModel bill : list){
-            try {
-                grandTotal += Double.parseDouble(bill.totalAmount);
-            } catch (Exception e){}
+        // Hitung Ringkasan
+        double totalRevenue = 0;
+        for (BillingModel bill : list) {
+            totalRevenue += bill.getTotalAmount();
         }
 
-        if(totalSalesTxt != null){
-            totalSalesTxt.setText("Total Pendapatan: Rp " + String.format("%.0f", grandTotal));
-        }
+        // Tampilkan Ringkasan
+        tvGrandTotalRevenue.setText(formatRupiah(totalRevenue));
+        tvTotalTransactionCount.setText(list.size() + " Transaksi Berhasil");
+
+        // Tampilkan List
+        ReportsAdapter adapter = new ReportsAdapter(list, this);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private String formatRupiah(double number) {
+        Locale localeID = new Locale("in", "ID");
+        NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+        return formatRupiah.format(number);
     }
 }

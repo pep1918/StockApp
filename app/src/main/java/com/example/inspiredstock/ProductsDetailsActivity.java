@@ -1,9 +1,7 @@
 package com.example.inspiredstock;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -12,79 +10,81 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.ProductsModel;
+import java.util.List;
 
 public class ProductsDetailsActivity extends AppCompatActivity {
 
-    private EditText pName, pCategory, pPrice, pQty;
-    private ImageView pImage;
-    private Button updateBtn, deleteBtn;
-    private ProductsModel product;
-    private int productId;
+    EditText pName, pCategory, pPrice, pQty;
+    ImageView pImage;
+    Button btnUpdate;
+    AppDatabase db;
+    ProductsModel currentProduct;
+    int productId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_products_details); // Pastikan layout XML ini ada
+        setContentView(R.layout.activity_products_details);
 
-        pName = findViewById(R.id.product_name_details);
-        pCategory = findViewById(R.id.product_category_details);
-        pPrice = findViewById(R.id.product_price_details);
-        pQty = findViewById(R.id.product_quantity_details);
-        pImage = findViewById(R.id.product_image_details);
-        updateBtn = findViewById(R.id.update_product_btn);
-        deleteBtn = findViewById(R.id.delete_product_btn);
+        // Mapping ID sesuai activity_products_details.xml
+        pName = findViewById(R.id.detail_name);
+        pCategory = findViewById(R.id.detail_category);
+        pPrice = findViewById(R.id.detail_price);
+        pQty = findViewById(R.id.detail_qty);
+        pImage = findViewById(R.id.detail_image);
+        btnUpdate = findViewById(R.id.detail_update_btn);
 
-        // Ambil Data dari Intent (dikirim dari Adapter saat klik list)
-        if(getIntent().hasExtra("product_id")) {
+        db = AppDatabase.getDbInstance(this);
+
+        // Menerima ID dari Intent
+        if (getIntent().hasExtra("product_id")) {
             productId = getIntent().getIntExtra("product_id", 0);
             loadProductData(productId);
         }
 
-        updateBtn.setOnClickListener(v -> updateProduct());
-        deleteBtn.setOnClickListener(v -> deleteProduct());
+        btnUpdate.setOnClickListener(v -> updateProduct());
     }
 
     private void loadProductData(int id) {
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-        // Perlu tambah method getProductById di ProductsDao, tapi kita bisa filter manual jika darurat
-        // Idealnya tambahkan: @Query("SELECT * FROM table_products WHERE id = :id") ProductsModel getProductById(int id); di DAO
-        // Di sini saya pakai logika pencarian manual dari list untuk kompatibilitas cepat
-        for(ProductsModel p : db.productsDao().getAllProducts()){
-            if(p.id == id){
-                product = p;
-                break;
-            }
-        }
+        // Cara sederhana mencari berdasarkan ID (bisa dioptimalkan dengan query getById di DAO)
+        List<ProductsModel> list = db.productsDao().getAllProducts();
+        for (ProductsModel p : list) {
+            if (p.getId() == id) {
+                currentProduct = p;
 
-        if(product != null){
-            pName.setText(product.productName);
-            pCategory.setText(product.productCategory);
-            pPrice.setText(product.productPrice);
-            pQty.setText(product.productQuantity);
-            if(product.imagePath != null && !product.imagePath.isEmpty()) {
-                Glide.with(this).load(Uri.parse(product.imagePath)).into(pImage);
+                // Gunakan Getter
+                pName.setText(p.getProductName());
+                pCategory.setText(p.getProductCategory());
+                pPrice.setText(String.valueOf(p.getPrice())); // Double ke String
+                pQty.setText(String.valueOf(p.getStock()));   // Int ke String
+
+                if (p.getImagePath() != null && !p.getImagePath().isEmpty()) {
+                    Glide.with(this).load(Uri.parse(p.getImagePath())).into(pImage);
+                }
+                break;
             }
         }
     }
 
     private void updateProduct() {
-        if(product == null) return;
-        product.productName = pName.getText().toString();
-        product.productCategory = pCategory.getText().toString();
-        product.productPrice = pPrice.getText().toString();
-        product.productQuantity = pQty.getText().toString();
+        if (currentProduct == null) return;
 
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-        db.productsDao().updateProduct(product);
-        Toast.makeText(this, "Produk Diupdate!", Toast.LENGTH_SHORT).show();
-        finish();
-    }
+        // Gunakan Setter untuk update data
+        currentProduct.setProductName(pName.getText().toString());
+        currentProduct.setProductCategory(pCategory.getText().toString());
 
-    private void deleteProduct() {
-        if(product == null) return;
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-        db.productsDao().deleteProduct(product);
-        Toast.makeText(this, "Produk Dihapus!", Toast.LENGTH_SHORT).show();
-        finish();
+        try {
+            currentProduct.setPrice(Double.parseDouble(pPrice.getText().toString()));
+            currentProduct.setStock(Integer.parseInt(pQty.getText().toString()));
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Harga/Stok harus angka!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Simpan perubahan
+        db.productsDao().updateProduct(currentProduct);
+
+        Toast.makeText(this, "Data Berhasil Diupdate", Toast.LENGTH_SHORT).show();
+        finish(); // Kembali ke list
     }
 }

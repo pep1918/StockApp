@@ -7,58 +7,55 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.inspiredstock.Models.CartItem;
 import com.example.inspiredstock.R;
-
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     private Context context;
-    private List<CartItem> cartList;
+    private List<CartItem> cartItems;
 
-    public CartAdapter(Context context, List<CartItem> cartList) {
+    public CartAdapter(Context context, List<CartItem> cartItems) {
         this.context = context;
-        this.cartList = cartList;
+        this.cartItems = cartItems;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Kita "pinjam" layout expenses_recycler_sample.xml
-        View view = LayoutInflater.from(context).inflate(R.layout.expenses_recycler_sample, parent, false);
+        // Pastikan layout 'billing_cart_item' ada di folder layout
+        View view = LayoutInflater.from(context).inflate(R.layout.billing_cart_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CartItem item = cartList.get(position);
+        CartItem item = cartItems.get(position);
 
-        // Mapping Data ke View
-        holder.name.setText(item.product.productName);           // Nama Barang
-        holder.price.setText("Rp " + String.format("%.0f", item.subtotal)); // Total Harga (Harga x Qty)
-        holder.qty.setText(item.qty + " pcs");                   // Jumlah Beli
+        // PERBAIKAN: Gunakan Getter dari ProductsModel
+        holder.name.setText(item.getProduct().getProductName());
 
-        // Sembunyikan field note karena tidak dipakai di keranjang
-        holder.note.setVisibility(View.GONE);
+        // Hitung subtotal: Harga x Qty
+        double subtotal = item.getProduct().getPrice() * item.getQuantity();
+        holder.price.setText(item.getQuantity() + " x Rp " + item.getProduct().getPrice());
+        holder.total.setText("Rp " + subtotal);
     }
 
     @Override
     public int getItemCount() {
-        return cartList.size();
+        return cartItems.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, price, qty, note;
+        TextView name, price, total;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Pastikan ID ini SESUAI dengan expenses_recycler_sample.xml
-            name = itemView.findViewById(R.id.expense_category_display);
-            price = itemView.findViewById(R.id.expense_amount_display);
-            qty = itemView.findViewById(R.id.expense_date_display);
-            note = itemView.findViewById(R.id.expense_note_display);
+            // Sesuaikan ID dengan file billing_cart_item.xml Anda
+            name = itemView.findViewById(R.id.tvBillItemName);
+            price = itemView.findViewById(R.id.tvBillItemPrice);
+            total = itemView.findViewById(R.id.tvBillSubtotal);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.example.inspiredstock;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,50 +14,53 @@ import java.util.List;
 
 public class ReceivedProduct extends AppCompatActivity {
 
-    private Spinner productSpinner;
-    private EditText qtyInput;
-    private Button saveBtn;
-    private List<ProductsModel> productList;
+    Spinner spinnerProducts;
+    EditText etQty;
+    Button btnSubmit;
+    AppDatabase db;
+    List<ProductsModel> productList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_received_product);
 
-        productSpinner = findViewById(R.id.received_product_spinner);
-        qtyInput = findViewById(R.id.received_qty_input);
-        saveBtn = findViewById(R.id.btn_add_stock);
+        db = AppDatabase.getDbInstance(this);
+
+        // Sesuaikan ID dengan XML
+        spinnerProducts = findViewById(R.id.receive_product_spinner);
+        etQty = findViewById(R.id.receive_qty_input);
+        btnSubmit = findViewById(R.id.receive_submit_btn);
 
         loadProducts();
 
-        saveBtn.setOnClickListener(v -> addStock());
+        btnSubmit.setOnClickListener(v -> addStock());
     }
 
     private void loadProducts() {
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
         productList = db.productsDao().getAllProducts();
-
         List<String> names = new ArrayList<>();
-        for(ProductsModel p : productList) names.add(p.productName);
-
+        for (ProductsModel p : productList) {
+            names.add(p.getProductName()); // Getter
+        }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
-        productSpinner.setAdapter(adapter);
+        spinnerProducts.setAdapter(adapter);
     }
 
     private void addStock() {
-        int pos = productSpinner.getSelectedItemPosition();
-        String qtyStr = qtyInput.getText().toString();
+        int pos = spinnerProducts.getSelectedItemPosition();
+        String qtyStr = etQty.getText().toString();
 
-        if(pos >= 0 && !TextUtils.isEmpty(qtyStr)){
-            ProductsModel product = productList.get(pos);
-            int addQty = Integer.parseInt(qtyStr);
-            int currentQty = Integer.parseInt(product.productQuantity);
+        if (qtyStr.isEmpty()) return;
 
-            product.productQuantity = String.valueOf(currentQty + addQty); // Tambah Stok
+        int qtyToAdd = Integer.parseInt(qtyStr);
+        ProductsModel product = productList.get(pos);
 
-            AppDatabase.getDbInstance(getApplicationContext()).productsDao().updateProduct(product);
-            Toast.makeText(this, "Stok Berhasil Ditambah!", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        // Update Logic
+        product.setStock(product.getStock() + qtyToAdd);
+        db.productsDao().updateProduct(product);
+
+        Toast.makeText(this, "Stok Ditambahkan", Toast.LENGTH_SHORT).show();
+        finish();
     }
 }

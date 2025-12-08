@@ -6,18 +6,29 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.inspiredstock.Adapters.SelectSuppliersAdapter;
 import com.example.inspiredstock.Database.AppDatabase;
+import com.example.inspiredstock.Models.SuppliersModelClass;
+import java.util.List;
 
 public class SelectSuppliers extends AppCompatActivity {
-    RecyclerView rec;
-    SelectSuppliersAdapter adapter;
+
+    RecyclerView recyclerView;
+    AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_suppliers);
-        rec = findViewById(R.id.select_suppliers_recycler);
-        rec.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SelectSuppliersAdapter(this, AppDatabase.getDbInstance(this).suppliersDao().getAllSuppliers());
-        rec.setAdapter(adapter);
+
+        db = AppDatabase.getDbInstance(this);
+        recyclerView = findViewById(R.id.recycler_select_supplier);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        loadData();
+    }
+
+    private void loadData() {
+        List<SuppliersModelClass> list = db.suppliersDao().getAllSuppliers();
+        SelectSuppliersAdapter adapter = new SelectSuppliersAdapter(list, this);
+        recyclerView.setAdapter(adapter);
     }
 }

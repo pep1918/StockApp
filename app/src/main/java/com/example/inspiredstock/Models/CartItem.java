@@ -1,18 +1,18 @@
 package com.example.inspiredstock.Models;
 
 public class CartItem {
-    public ProductsModel product; // Barang aslinya
-    public int qty; // Jumlah yang dibeli
-    public double subtotal; // Harga x Qty
+    private ProductsModel product;
+    private int quantity;
 
-    public CartItem(ProductsModel product, int qty) {
+    public CartItem(ProductsModel product, int quantity) {
         this.product = product;
-        this.qty = qty;
-        try {
-            double price = Double.parseDouble(product.productPrice);
-            this.subtotal = price * qty;
-        } catch (Exception e) {
-            this.subtotal = 0;
-        }
+        this.quantity = quantity;
     }
+
+    // Getter Setter
+    public ProductsModel getProduct() { return product; }
+    public void setProduct(ProductsModel product) { this.product = product; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 }

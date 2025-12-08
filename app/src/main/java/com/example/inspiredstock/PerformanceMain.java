@@ -1,78 +1,74 @@
 package com.example.inspiredstock;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.cardview.widget.CardView;
 import com.example.inspiredstock.Database.AppDatabase;
-import com.example.inspiredstock.Models.ExpensesModel;
 import com.example.inspiredstock.Models.BillingModel;
-import com.example.inspiredstock.Models.ProductsModel;
-
+import com.example.inspiredstock.Models.ExpensesModel;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class PerformanceMain extends AppCompatActivity {
 
-    private TextView txtTotalSales, txtTotalExpenses, txtNetProfit, txtStockCount;
+    TextView tvTotalIncome, tvTotalExpense, tvNetProfit;
+    Button btnViewDetails;
+    AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_performance_main);
 
-        // Inisialisasi View dengan ID yang BENAR
-        txtTotalSales = findViewById(R.id.perf_total_sales);
-        txtTotalExpenses = findViewById(R.id.perf_total_expenses);
-        txtNetProfit = findViewById(R.id.perf_net_profit);
-        txtStockCount = findViewById(R.id.perf_stock_count); // <--- Ini yang tadi error
+        db = AppDatabase.getDbInstance(this);
+
+
+        tvTotalIncome = findViewById(R.id.tvTotalIncome); // Buat ID ini di XML
+        tvTotalExpense = findViewById(R.id.tvTotalExpenses);
+        tvNetProfit = findViewById(R.id.tvNetProfit); // Buat ID ini di XML
+        btnViewDetails = findViewById(R.id.btnViewDetails); // Tombol Lihat Detail Transaksi
 
         calculatePerformance();
+
+
+        if (btnViewDetails != null) {
+            btnViewDetails.setOnClickListener(v ->
+                    startActivity(new Intent(this, ReportsDetails.class))
+            );
+        }
     }
 
     private void calculatePerformance() {
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-
-        // 1. Hitung Total Penjualan (Income)
+        // 1. Hitung Pemasukan (Dari Billing)
         List<BillingModel> bills = db.billingDao().getAllBills();
-        double totalSales = 0;
+        double totalIncome = 0;
         for (BillingModel bill : bills) {
-            try {
-                totalSales += Double.parseDouble(bill.totalAmount);
-            } catch (Exception e) {}
+            totalIncome += bill.getTotalAmount();
         }
 
-        // 2. Hitung Total Pengeluaran (Expenses)
+        // 2. Hitung Pengeluaran (Dari Expenses)
         List<ExpensesModel> expenses = db.expensesDao().getAllExpenses();
-        double totalExpenses = 0;
-        for (ExpensesModel exp : expenses) {
-            try {
-                totalExpenses += Double.parseDouble(exp.expenseAmount);
-            } catch (Exception e) {}
+        double totalExpense = 0;
+        for (ExpensesModel ex : expenses) {
+            totalExpense += ex.getAmount();
         }
 
-        // 3. Hitung Jumlah Stok Barang
-        List<ProductsModel> products = db.productsDao().getAllProducts();
-        int totalStockItems = 0;
-        for(ProductsModel p : products){
-            try {
-                totalStockItems += Integer.parseInt(p.productQuantity);
-            } catch (Exception e){}
-        }
+        // 3. Hitung Laba Bersih
+        double profit = totalIncome - totalExpense;
 
-        // 4. Hitung Profit
-        double netProfit = totalSales - totalExpenses;
+        // Tampilkan
+        if (tvTotalIncome != null) tvTotalIncome.setText(formatRupiah(totalIncome));
+        if (tvTotalExpense != null) tvTotalExpense.setText(formatRupiah(totalExpense));
+        if (tvNetProfit != null) tvNetProfit.setText(formatRupiah(profit));
+    }
 
-        // 5. Tampilkan ke Layar
-        txtTotalSales.setText("Rp " + String.format("%.0f", totalSales));
-        txtTotalExpenses.setText("Rp " + String.format("%.0f", totalExpenses));
-        txtNetProfit.setText("Rp " + String.format("%.0f", netProfit));
-        txtStockCount.setText(totalStockItems + " Unit");
-
-        // Warna Profit
-        if(netProfit >= 0){
-            txtNetProfit.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        } else {
-            txtNetProfit.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        }
+    private String formatRupiah(double number) {
+        Locale localeID = new Locale("in", "ID");
+        NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+        return formatRupiah.format(number);
     }
 }
