@@ -1,46 +1,44 @@
 package com.example.inspiredstock.Models;
 
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
 import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-@Entity(tableName = "table_products")
+@Entity(tableName = "products")
 public class ProductsModel {
-
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    private int id;
 
-    @ColumnInfo(name = "p_id")
-    public String productId;
+    @ColumnInfo(name = "product_name")
+    private String productName;
 
-    @ColumnInfo(name = "p_name")
-    public String productName;
+    @ColumnInfo(name = "category")
+    private String productCategory;
 
-    @ColumnInfo(name = "p_category")
-    public String productCategory;
+    @ColumnInfo(name = "stock")
+    private int stock; // Menggantikan productQuantity
 
-    @ColumnInfo(name = "p_qty")
-    public String productQuantity;
-
-    @ColumnInfo(name = "p_price")
-    public String productPrice;
+    @ColumnInfo(name = "price")
+    private double price; // Menggantikan productPrice
 
     @ColumnInfo(name = "image_path")
-    public String imagePath;
+    private String imagePath;
 
-    // Constructor Kosong
-    public ProductsModel() {
-    }
+    public ProductsModel() { }
 
-    // Constructor dengan Parameter
-    @Ignore
-    public ProductsModel(String productId, String productName, String productCategory, String productQuantity, String productPrice, String imagePath) {
-        this.productId = productId;
-        this.productName = productName;
-        this.productCategory = productCategory;
-        this.productQuantity = productQuantity;
-        this.productPrice = productPrice;
-        this.imagePath = imagePath;
-    }
+    // Getters
+    public int getId() { return id; }
+    public String getProductName() { return productName; }
+    public String getProductCategory() { return productCategory; }
+    public int getStock() { return stock; }
+    public double getPrice() { return price; }
+    public String getImagePath() { return imagePath; }
+
+    // Setters
+    public void setId(int id) { this.id = id; }
+    public void setProductName(String productName) { this.productName = productName; }
+    public void setProductCategory(String productCategory) { this.productCategory = productCategory; }
+    public void setStock(int stock) { this.stock = stock; }
+    public void setPrice(double price) { this.price = price; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 }

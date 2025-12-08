@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/iconContainer"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/edit_text_style"
+            android:backgroundTint="#E8F5E9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/item"
+                app:tint="#4CAF50"/>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvProductName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Nama Produk Disini"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/iconContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvProductPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rp 150.000"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@+id/tvProductName"
+            app:layout_constraintTop_toBottomOf="@+id/tvProductName"/>
+
+        <TextView
+            android:id="@+id/tvProductStock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stok: 24 Pcs"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

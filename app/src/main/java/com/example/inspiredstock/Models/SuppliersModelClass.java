@@ -1,38 +1,35 @@
 package com.example.inspiredstock.Models;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
 
-@Entity(tableName = "table_suppliers")
+@Entity(tableName = "suppliers")
 public class SuppliersModelClass {
-
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    private int id;
 
-    @ColumnInfo(name = "s_name")
-    public String supplierName;
+    @ColumnInfo(name = "supp_name")
+    private String supplierName;
 
-    @ColumnInfo(name = "s_phone")
-    public String supplierPhone;
+    @ColumnInfo(name = "supp_contact")
+    private String supplierContact;
 
-    @ColumnInfo(name = "s_email")
-    public String supplierEmail;
+    public SuppliersModelClass() { }
 
-    @ColumnInfo(name = "s_address")
-    public String supplierAddress;
-
-    // Constructor Kosong
-    public SuppliersModelClass() {
-    }
-
-    // Constructor dengan Parameter
     @Ignore
-    public SuppliersModelClass(String supplierName, String supplierPhone, String supplierEmail, String supplierAddress) {
+    public SuppliersModelClass(String supplierName, String supplierContact) {
         this.supplierName = supplierName;
-        this.supplierPhone = supplierPhone;
-        this.supplierEmail = supplierEmail;
-        this.supplierAddress = supplierAddress;
+        this.supplierContact = supplierContact;
     }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+
+    public String getSupplierContact() { return supplierContact; }
+    public void setSupplierContact(String supplierContact) { this.supplierContact = supplierContact; }
 }

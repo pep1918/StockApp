@@ -1,55 +1,94 @@
 package com.example.inspiredstock;
 
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.example.inspiredstock.Adapters.SuppliersAdapter;
 import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.SuppliersModelClass;
-import java.util.ArrayList;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 
 public class SuppliersActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private SuppliersAdapter adapter;
-    private FloatingActionButton fab;
-    private List<SuppliersModelClass> list = new ArrayList<>();
+    private TextView tvTotalSuppliers;
+    private FloatingActionButton fabAdd;
+    private AppDatabase database;
+    private List<SuppliersModelClass> supplierList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suppliers);
 
-        recyclerView = findViewById(R.id.recycler_suppliers);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        database = AppDatabase.getDbInstance(this);
 
-        adapter = new SuppliersAdapter(this, list);
+        // ID sesuai activity_suppliers.xml
+        tvTotalSuppliers = findViewById(R.id.tvTotalSuppliers);
+        recyclerView = findViewById(R.id.recyclerSuppliers);
+        fabAdd = findViewById(R.id.fabAddSupplier);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        loadData();
+
+        fabAdd.setOnClickListener(v -> showAddDialog());
+    }
+
+    private void loadData() {
+        supplierList = database.suppliersDao().getAllSuppliers();
+        SuppliersAdapter adapter = new SuppliersAdapter(supplierList, this);
         recyclerView.setAdapter(adapter);
 
-        fab = findViewById(R.id.fab_add_supplier);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(SuppliersActivity.this, AddSuppliersactivity.class));
+        // Update Total
+        tvTotalSuppliers.setText(supplierList.size() + " Perusahaan");
+    }
+
+    private void showAddDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // ID layout: dialog_supplier_input.xml
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_supplier_input, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        EditText etName = view.findViewById(R.id.etSuppName);
+        EditText etContact = view.findViewById(R.id.etSuppContact);
+        Button btnSave = view.findViewById(R.id.btnSave);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+
+        btnSave.setOnClickListener(v -> {
+            if (etName.getText().toString().isEmpty()) {
+                Toast.makeText(this, "Nama Supplier wajib diisi", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // Menggunakan Constructor dengan parameter (Pastikan constructor di Model pakai @Ignore atau public biasa)
+            SuppliersModelClass supplier = new SuppliersModelClass();
+            supplier.setSupplierName(etName.getText().toString());
+            supplier.setSupplierContact(etContact.getText().toString());
+
+            database.suppliersDao().insertSupplier(supplier);
+
+            Toast.makeText(this, "Supplier Disimpan", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            loadData();
         });
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadSuppliers();
-    }
-
-    private void loadSuppliers() {
-        AppDatabase db = AppDatabase.getDbInstance(getApplicationContext());
-        list = db.suppliersDao().getAllSuppliers();
-        adapter.setList(list);
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 }

@@ -1,38 +1,46 @@
 package com.example.inspiredstock.Models;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import androidx.room.ColumnInfo;
 
-@Entity(tableName = "table_expenses")
+@Entity(tableName = "expenses")
 public class ExpensesModel {
-
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    private int id;
 
-    @ColumnInfo(name = "e_category")
-    public String expenseCategory;
+    @ColumnInfo(name = "exp_name")
+    private String expenseName;
 
-    @ColumnInfo(name = "e_amount")
-    public String expenseAmount;
+    @ColumnInfo(name = "amount")
+    private double amount;
 
-    @ColumnInfo(name = "e_date")
-    public String expenseDate;
+    @ColumnInfo(name = "date")
+    private String date;
 
-    @ColumnInfo(name = "e_note")
-    public String expenseNote;
+    @ColumnInfo(name = "note")
+    private String note;
 
-    // Constructor Kosong (Wajib untuk Room)
-    public ExpensesModel() {
-    }
+    public ExpensesModel() { }
 
-    // Constructor dengan Parameter (Wajib pakai @Ignore agar Room tidak bingung)
     @Ignore
-    public ExpensesModel(String expenseCategory, String expenseAmount, String expenseDate, String expenseNote) {
-        this.expenseCategory = expenseCategory;
-        this.expenseAmount = expenseAmount;
-        this.expenseDate = expenseDate;
-        this.expenseNote = expenseNote;
+    public ExpensesModel(String expenseName, double amount, String date, String note) {
+        this.expenseName = expenseName;
+        this.amount = amount;
+        this.date = date;
+        this.note = note;
     }
+
+    // Getter Setter
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getExpenseName() { return expenseName; }
+    public void setExpenseName(String expenseName) { this.expenseName = expenseName; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
 }

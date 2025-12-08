@@ -1,83 +1,64 @@
 package com.example.inspiredstock.Adapters;
 
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.inspiredstock.Database.AppDatabase;
 import com.example.inspiredstock.Models.SuppliersModelClass;
 import com.example.inspiredstock.R;
-
 import java.util.List;
 
-public class SuppliersAdapter extends RecyclerView.Adapter<SuppliersAdapter.ViewHolder> {
+public class SuppliersAdapter extends RecyclerView.Adapter<SuppliersAdapter.MyViewHolder> {
 
     private Context context;
     private List<SuppliersModelClass> list;
 
-    public SuppliersAdapter(Context context, List<SuppliersModelClass> list) {
+    public SuppliersAdapter(List<SuppliersModelClass> list, Context context) {
+        this.list = list;
         this.context = context;
-        this.list = list;
-    }
-
-    public void setList(List<SuppliersModelClass> list) {
-        this.list = list;
-        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.recycler_view_sample, parent, false);
-        return new ViewHolder(view);
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.row_supplier, parent, false);
+        return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         SuppliersModelClass item = list.get(position);
-        holder.name.setText(item.supplierName);
-        holder.phone.setText(item.supplierPhone);
+        holder.name.setText(item.getSupplierName());
+        holder.contact.setText(item.getSupplierContact());
 
-        // LOGIKA HAPUS SUPPLIER
-        holder.deleteBtn.setOnClickListener(v -> {
+        holder.itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(context)
-                    .setTitle("Hapus Supplier")
-                    .setMessage("Yakin hapus " + item.supplierName + "?")
-                    .setPositiveButton("Hapus", (dialog, which) -> {
-                        AppDatabase.getDbInstance(context).suppliersDao().deleteSupplier(item);
-                        list.remove(holder.getAdapterPosition());
-                        notifyItemRemoved(holder.getAdapterPosition());
-                        notifyItemRangeChanged(holder.getAdapterPosition(), list.size());
-                        Toast.makeText(context, "Supplier Dihapus", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("Batal", null)
-                    .show();
+                    .setMessage("Hapus " + item.getSupplierName() + "?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        AppDatabase.getDbInstance(context).suppliersDao().deleteSupplier(item); // Pastikan ada method deleteSupplier di DAO
+                        list.remove(position);
+                        notifyItemRemoved(position);
+                    }).show();
+            return true;
         });
     }
 
     @Override
-    public int getItemCount() {
-        return list.size();
-    }
+    public int getItemCount() { return list.size(); }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, phone;
-        ImageButton deleteBtn;
-
-        public ViewHolder(@NonNull View itemView) {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView name, contact;
+        public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Pastikan ID ini sesuai dengan recycler_view_sample.xml yang baru
-            name = itemView.findViewById(R.id.customer_name_display); // Kita pakai ID yang sama dgn customer biar ringkas
-            phone = itemView.findViewById(R.id.customer_phone_display);
-            deleteBtn = itemView.findViewById(R.id.btn_delete_item);
+            name = itemView.findViewById(R.id.tvSuppName);
+            contact = itemView.findViewById(R.id.tvSuppContact);
         }
     }
 }

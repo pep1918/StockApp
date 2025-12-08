@@ -13,12 +13,12 @@ public interface ProductsDao {
     @Insert
     void insertProduct(ProductsModel product);
 
-    @Query("SELECT * FROM table_products ORDER BY id DESC")
+    @Query("SELECT * FROM products ORDER BY id DESC")
     List<ProductsModel> getAllProducts();
-
-    @Update
-    void updateProduct(ProductsModel product);
 
     @Delete
     void deleteProduct(ProductsModel product);
+
+    @Update
+    void updateProduct(ProductsModel product);
 }

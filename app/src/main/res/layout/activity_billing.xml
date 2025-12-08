@@ -1,80 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp"
-    android:background="#F0F0F0">
+    android:background="#FAFAFA">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Kasir"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="10dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pilih Pelanggan:" />
-
-    <Spinner
-        android:id="@+id/customer_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:layout_marginBottom="10dp"/>
-
-    <Button
-        android:id="@+id/btn_add_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="+ Tambah Barang"
-        android:backgroundTint="#FF9800"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/billing_cart_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"
-        android:layout_marginTop="10dp"/>
+    <include android:id="@+id/layout_header" layout="@layout/component_header"/>
 
     <LinearLayout
+        android:id="@+id/bottom_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="15dp"
-        android:background="#D1C4E9">
+        android:layout_alignParentBottom="true"
+        android:background="#FFFFFF"
+        android:elevation="10dp"
+        android:padding="20dp"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="TOTAL: "
-                android:textSize="20sp"
+                android:text="TOTAL TAGIHAN:"
                 android:textStyle="bold"/>
             <TextView
-                android:id="@+id/billing_grand_total"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/tv_total_bill"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Rp 0"
-                android:gravity="end"
-                android:textSize="22sp"
-                android:textColor="#4CAF50"
-                android:textStyle="bold"/>
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"/>
         </LinearLayout>
 
         <Button
-            android:id="@+id/confirm_bill_btn"
+            android:id="@+id/btn_pay"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="BAYAR SEKARANG"
+            android:backgroundTint="#4CAF50"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_header"
+        android:layout_above="@id/bottom_panel"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="BAYAR SEKARANG"
-            android:backgroundTint="#4CAF50"
-            android:layout_marginTop="10dp"/>
-    </LinearLayout>
-</LinearLayout>
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Input Transaksi" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+
+                    <EditText
+                        android:id="@+id/et_barcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="Scan Barcode / Nama"
+                        android:background="@android:drawable/edit_text"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/et_qty"
+                            android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="50dp"
+                            android:hint="Qty"
+                            android:inputType="number"
+                            android:background="@android:drawable/edit_text"/>
+
+                        <Button
+                            android:id="@+id/btn_add"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TAMBAH"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Daftar Belanja" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_cart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

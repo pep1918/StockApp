@@ -1,48 +1,48 @@
 package com.example.inspiredstock.Database;
 
 import android.content.Context;
-
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-// Import Semua Model
 import com.example.inspiredstock.Models.ProductsModel;
 import com.example.inspiredstock.Models.CustomersModelClass;
 import com.example.inspiredstock.Models.SuppliersModelClass;
 import com.example.inspiredstock.Models.ExpensesModel;
-import com.example.inspiredstock.Models.BillingModel;
-import com.example.inspiredstock.Models.CostModel;
+import com.example.inspiredstock.Models.BillingModel; // Pastikan file ini ada
+import com.example.inspiredstock.Models.CostModel;    // Pastikan file ini ada
 
-// DAFTARKAN SEMUA ENTITY (TABEL) DI SINI
 @Database(entities = {
         ProductsModel.class,
         CustomersModelClass.class,
         SuppliersModelClass.class,
         ExpensesModel.class,
-        BillingModel.class,  // <-- PENTING: Tambahkan ini
-        CostModel.class      // <-- Tambahkan ini juga jika fitur Cost dipakai
+        BillingModel.class,
+        CostModel.class
 }, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
-    // DAFTARKAN SEMUA DAO (AKSES DATABSE) DI SINI
     public abstract ProductsDao productsDao();
     public abstract CustomersDao customersDao();
     public abstract SuppliersDao suppliersDao();
     public abstract ExpensesDao expensesDao();
+    public abstract BillingDao billingDao(); // Pastikan BillingDao ada
+    public abstract CostDao costDao();       // Pastikan CostDao ada
 
-    public abstract BillingDao billingDao(); // <-- INI YANG MENYEBABKAN ERROR ANDA
-    public abstract CostDao costDao();       // <-- Tambahkan ini untuk fitur Cost
+    private static volatile AppDatabase INSTANCE;
 
-    private static AppDatabase INSTANCE;
-
-    public static AppDatabase getDbInstance(Context context) {
-        if(INSTANCE == null) {
-            INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "StockApp_Offline_DB")
-                    .allowMainThreadQueries()
-                    .fallbackToDestructiveMigration()
-                    .build();
+    // KITA PAKAI NAMA 'getDbInstance' AGAR SESUAI ERROR LOG ANDA
+    public static AppDatabase getDbInstance(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (AppDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                                    AppDatabase.class, "inspired_stock_db")
+                            .allowMainThreadQueries()
+                            .fallbackToDestructiveMigration()
+                            .build();
+                }
+            }
         }
         return INSTANCE;
     }
